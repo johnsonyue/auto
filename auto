@@ -1,0 +1,71 @@
+##!/bin/bash
+map(){
+ka=($1)
+va=($2)
+for i in $(seq 0 $(($(echo ${ka[@]} | wc -w)-1))); do test "$3" == "${ka[$i]}" && echo ${va[$i]} && break; done
+}
+
+#step 0: get hosts info.
+#printf "password: " && read -s pass && echo;
+pass=1q2w3e4r
+remote_dir="/home/hitnis"
+docker_quagga="/home/quagga/"
+sd="10.10.11.132:/home/hitnis/share/"
+tar="bgpsim"
+image_file="image.tar"
+image_name="centos-quagga-bgp"
+package=$tar.tar.gz
+tar zcf $package $tar
+ia=($(cut -d'#' -f1 $tar/conf/hostip-hostid.txt))
+ha=($(cut -d'#' -f2 $tar/conf/hostip-hostid.txt | xargs -I {} echo host_{}))
+
+oldpath=`pwd`
+cd $tar
+./gen-conf.sh
+cd $oldpath
+
+echo "tar zcf $package $tar"
+tar zcf $package $tar
+
+###############################
+#step 2: set up hosts.
+execute(){
+ip=$1
+script=$2
+remote=$3
+echo ">>> cleaning hosts"
+
+expect -c "set timeout -1
+spawn bash -c \"cat clean_host.sh | ssh -o 'StrictHostKeyChecking no' root@$ip 'bash -s'\"
+expect -re \".*password.*\" {send \"$pass\r\"}
+expect eof"
+q=$(expect -c "set timeout -1
+spawn ssh root@$ip \"test -z \\\"\\\$(docker images | grep $image_name)\\\" && echo do not || echo do \"
+expect -re \".*password.*\" {send \"$pass\r\"}
+expect eof" | tail -n 1 | sed 's/\r//g')
+echo ">>> remote host $q have image: $image_name"
+test ! -z "$(echo $q | grep 'do not')" && expect -c "set timeout -1
+spawn scp $image_file root@$ip:$remote
+expect -re \".*password.*\" {send \"$pass\r\"}
+expect eof"
+test ! -z "$(echo $q | grep 'do not')" && expect -c "set timeout -1
+spawn ssh root@$ip \"docker load -i $remote/$image_file\"
+expect -re \".*password.*\" {send \"$pass\r\"}
+expect eof"
+echo ">>> execute run"
+expect -c "set timeout -1
+spawn scp $script root@$ip:$remote
+expect -re \".*password.*\" {send \"$pass\r\"}
+expect eof"
+expect -c "set timeout -1
+spawn ssh root@$ip \"cd $remote; rm -r $tar; tar zxf $script && cd $(echo $script | sed 's/\.tar\.gz//g'); ./run.sh; echo allclear$ip\"
+expect -re \".*password.*\" {send \"$pass\r\"}
+expect -re \"allclear$ip\" {exit}"
+}
+
+for i in ${ia[@]}; do
+  execute $i $package $remote_dir
+done
+wait
+
+./build_interlink.sh

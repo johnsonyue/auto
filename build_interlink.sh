@@ -1,0 +1,90 @@
+##!/bin/bash
+map(){
+ka=($1)
+va=($2)
+for i in $(seq 0 $(($(echo ${ka[@]} | wc -w)-1))); do test "$3" == "${ka[$i]}" && echo ${va[$i]} && break; done
+}
+
+#step 0: get hosts info.
+#printf "password: " && read -s pass && echo;
+pass=1q2w3e4r
+remote_dir="/home/hitnis"
+docker_quagga="/home/quagga/"
+sd="10.10.11.132:/home/hitnis/share/"
+tar="bgpsim"
+package=$tar.tar.gz
+ia=($(cut -d'#' -f1 $tar/conf/hostip-hostid.txt))
+ha=($(cut -d'#' -f2 $tar/conf/hostip-hostid.txt | xargs -I {} echo host_{}))
+
+#echo "tar zcf $package $tar"
+#tar zcf $package $tar
+
+###############################
+#step 1: set up ovs.
+ovs(){
+ip=$1
+echo ">>> ovs setup"
+expect -c "set timeout -1
+spawn bash -c \"cat build_ovs.sh | ssh -o 'StrictHostKeyChecking no' root@$ip 'bash -s'\"
+expect -re \".*password.*\" {send \"$pass\r\"}
+expect eof"
+echo ">>> nfs"
+expect -c "set timeout -1
+spawn ssh root@$ip \"umount /home/share; mkdir -p /home/share && mount $sd /home/share; mkdir -p $remote_dir \"
+expect -re \".*password.*\" {send \"$pass\r\"}
+expect eof"
+}
+gre(){
+n=$1
+s=$2
+t=$3
+si=$(map "${ha[*]}" "${ia[*]}" $s)
+ti=$(map "${ha[*]}" "${ia[*]}" $t)
+echo ">>> gre#1"
+expect -c "set timeout -1
+spawn ssh root@$si \"ovs-vsctl add-port ovs0 gre$n -- set interface gre$n type=gre options:remote_ip=$ti\"
+expect -re \".*password.*\" {send \"$pass\r\"}
+expect eof"
+echo ">>> gre#2"
+expect -c "set timeout -1
+spawn ssh root@$ti \"ovs-vsctl add-port ovs0 gre$n -- set interface gre$n type=gre options:remote_ip=$si\"
+expect -re \".*password.*\" {send \"$pass\r\"}
+expect eof"
+}
+
+#for i in ${ia[@]}; do echo ">> ovs $i"; ovs $i; done
+for i in ${ia[@]}; do
+echo ">> ovs $i"
+ovs $i
+done
+
+l=$(($(echo ${ha[@]} | wc -w)))
+test $l -eq 2 && echo ">> gre 0 ${ha[0]} ${ha[$(((1)%$l))]}" && gre 0 ${ha[0]} ${ha[$(((1)%$l))]} || for i in $(seq 0 $(($l-1))); do echo ">> gre $i ${ha[$i]} ${ha[$((($i+1)%$l))]}"; gre $i ${ha[$i]} ${ha[$((($i+1)%$l))]}; done
+
+###############################
+#step 2: link hosts.
+link(){
+h1=host_$(echo $1 | cut -d'#' -f1)
+c1=$(echo $1 | cut -d'#' -f3)
+i1=$(echo $1 | cut -d'#' -f4)
+h2=host_$(echo $1 | cut -d'#' -f5)
+c2=$(echo $1 | cut -d'#' -f7)
+i2=$(echo $1 | cut -d'#' -f8)
+a1=$(map "${ha[*]}" "${ia[*]}" $h1)
+a2=$(map "${ha[*]}" "${ia[*]}" $h2)
+expect -c "set timeout -1
+spawn ssh root@$a1 \"n=\\\$((\\\$(docker exec $c1 ifconfig | grep -e '^eth.*' | grep -v lo | awk '{print \\\$1}' | grep -o -e '\[0-9\]*' | sort -nr | head -n 1)+1)); pipework br0 -i eth\\\$n $c1 $i1; docker exec $c1 ip link set dev eth\\\$n mtu 1462; docker exec $c1 python $docker_quagga/run-bgp.py $docker_quagga/bgp-configure.txt\"
+expect -re \".*password.*\" {send \"$pass\r\"}
+expect eof"
+expect -c "set timeout -1
+spawn ssh root@$a2 \"n=\\\$((\\\$(docker exec $c2 ifconfig | grep -e '^eth.*' | grep -v lo | awk '{print \\\$1}' | grep -o -e '\[0-9\]*' | sort -nr | head -n 1)+1)) ;pipework br0 -i eth\\\$n $c2 $i2; docker exec $c2 ip link set dev eth\\\$n mtu 1462; docker exec $c2 python $docker_quagga/run-bgp.py $docker_quagga/bgp-configure.txt\"
+expect -re \".*password.*\" {send \"$pass\r\"}
+expect eof"
+}
+
+expect -c "set timeout -1
+spawn scp root@${ia[0]}:$remote_dir/$tar/conf/interlink.txt $tar/conf/
+expect -re \".*password.*\" {send \"$pass\r\"}
+expect eof"
+
+cat $tar/conf/interlink.txt | while read l; do link $l; done

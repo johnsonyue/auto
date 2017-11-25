@@ -1,0 +1,57 @@
+#!/bin/bash
+
+hostInfo="host-asinfo.ip_level"
+absolute_path="/home/yupeng/quagga"
+shared="shared"
+web_dir="web"
+
+asInfo="conf/node-list"
+asLink="conf/link-list"
+conf="conf"
+
+apt-get install -y -o Acquire::ForceIPv4=true python-pip ipcalc nfs-common
+pip install IPy
+
+echo ">> remove"
+./remove.sh
+echo ">> create"
+mkdir -p $absolute_path
+
+cp $shared/* $absolute_path
+
+python gen-bgp.py $asInfo $asLink 
+# output file: $asInfo.ip_level $asLink.ip_level
+
+python gen-bgp-conf.py $asInfo.ip_level $asLink.ip_level
+# output file: bgp-configure.txt
+
+
+python relation.py
+# Add relationships to BGP config
+
+cp ./bgp-configure.txt $absolute_path
+mv ./bgp-configure.txt $conf
+
+
+python gen-hostinfo.py ${conf}/hostip-hostid.txt ${conf}/hostid-as.txt $asInfo.ip_level
+# output file: host-asinfo.ip_level
+
+# to An Yuhao
+cp $hostInfo $web_dir/peizhi
+cp $asLink.ip_level $web_dir/peizhi
+
+# to END
+
+mv $hostInfo $conf
+
+
+# generate interlink for openvswitch
+python gen-interlink.py ${conf}/$hostInfo ${asLink}.ip_level > ${conf}/interlink.txt
+
+# put get-host-ip-address.sh and get_ip in current directory
+python gen-container.py ${conf}/$hostInfo $asLink.ip_level ${conf}/bgp-configure.txt
+
+
+rm -f host-ip-address 
+
+cd $web_dir && nohup python tor3.py >http.log 2>&1 &

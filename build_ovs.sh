@@ -1,0 +1,62 @@
+#!/bin/bash
+#dep
+
+ifconfig br0 down && brctl delbr br0;
+ifconfig br1 down && brctl delbr br1;
+
+apt-get install -y -o Acquire::ForceIPv4=true bridge-utils openvswitch-switch openvswitch-common
+service openvswitch-switch start
+
+#pipework
+git clone https://github.com/jpetazzo/pipework
+cat pipework/pipework | sed "s/if installed ipcalc;/if false;/g" >/usr/local/bin/pipework
+chmod +x /usr/local/bin/pipework
+
+#restart
+echo "ovs restart"
+service openvswitch-switch stop
+echo "kill $(ps -ef | grep ovsdb-server | head -n 1 | awk '{print $2}')"
+kill $(ps -ef | grep ovsdb-server | head -n 1 | awk '{print $2}')
+echo << "EOF"
+ovsdb-server --remote=punix:/var/run/openvswitch/db.sock \
+                     --remote=db:Open_vSwitch,Open_vSwitch,manager_options \
+                     --private-key=db:Open_vSwitch,SSL,private_key \
+                     --certificate=db:Open_vSwitch,SSL,certificate \
+                     --bootstrap-ca-cert=db:Open_vSwitch,SSL,ca_cert \
+                     --pidfile --detach
+EOF
+ovsdb-server --remote=punix:/usr/local/var/run/openvswitch/db.sock \
+                     --remote=db:Open_vSwitch,Open_vSwitch,manager_options \
+                     --private-key=db:Open_vSwitch,SSL,private_key \
+                     --certificate=db:Open_vSwitch,SSL,certificate \
+                     --bootstrap-ca-cert=db:Open_vSwitch,SSL,ca_cert \
+                     --pidfile --detach
+echo "ovs-vsctl --no-wait init"
+ovs-vsctl --no-wait init
+echo "ovs-vswitchd --pidfile --detach"
+ovs-vswitchd --pidfile --detach
+
+
+echo "ovs-vsctl del-br ovs0"
+ovs-vsctl del-br ovs0
+echo "service openvswitch-switch restart"
+service openvswitch-switch restart
+
+#ring topo.
+echo "brctl addbr br0"
+brctl addbr br0
+echo "ip link set dev br0 up"
+ip link set dev br0 up
+echo "brctl addbr br1"
+brctl addbr br1
+echo "ip link set dev br1 up"
+ip link set dev br1 up
+
+echo "ovs-vsctl add-br ovs0"
+ovs-vsctl add-br ovs0
+echo "ovs-vsctl set bridge ovs0 stp_enable=true"
+ovs-vsctl set bridge ovs0 stp_enable=true
+echo "ovs-vsctl add-port ovs0 br0"
+ovs-vsctl add-port ovs0 br0
+echo "ovs-vsctl add-port ovs0 br1"
+ovs-vsctl add-port ovs0 br1
