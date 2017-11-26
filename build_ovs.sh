@@ -4,7 +4,7 @@
 ifconfig br0 down && brctl delbr br0;
 ifconfig br1 down && brctl delbr br1;
 
-apt-get install -y -o Acquire::ForceIPv4=true bridge-utils openvswitch-switch openvswitch-common
+apt-get install --allow-unauthenticated -y -o Acquire::ForceIPv4=true git bridge-utils openvswitch-switch openvswitch-common
 service openvswitch-switch start
 
 #pipework
@@ -25,7 +25,7 @@ ovsdb-server --remote=punix:/var/run/openvswitch/db.sock \
                      --bootstrap-ca-cert=db:Open_vSwitch,SSL,ca_cert \
                      --pidfile --detach
 EOF
-ovsdb-server --remote=punix:/usr/local/var/run/openvswitch/db.sock \
+ovsdb-server --remote=punix:/var/run/openvswitch/db.sock \
                      --remote=db:Open_vSwitch,Open_vSwitch,manager_options \
                      --private-key=db:Open_vSwitch,SSL,private_key \
                      --certificate=db:Open_vSwitch,SSL,certificate \

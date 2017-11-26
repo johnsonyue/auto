@@ -10,7 +10,6 @@ for i in $(seq 0 $(($(echo ${ka[@]} | wc -w)-1))); do test "$3" == "${ka[$i]}" &
 pass=1q2w3e4r
 remote_dir="/home/hitnis"
 docker_quagga="/home/quagga/"
-sd="10.10.11.132:/home/hitnis/share/"
 tar="bgpsim"
 package=$tar.tar.gz
 ia=($(cut -d'#' -f1 $tar/conf/hostip-hostid.txt))
@@ -26,11 +25,6 @@ ip=$1
 echo ">>> ovs setup"
 expect -c "set timeout -1
 spawn bash -c \"cat build_ovs.sh | ssh -o 'StrictHostKeyChecking no' root@$ip 'bash -s'\"
-expect -re \".*password.*\" {send \"$pass\r\"}
-expect eof"
-echo ">>> nfs"
-expect -c "set timeout -1
-spawn ssh root@$ip \"umount /home/share; mkdir -p /home/share && mount $sd /home/share; mkdir -p $remote_dir \"
 expect -re \".*password.*\" {send \"$pass\r\"}
 expect eof"
 }

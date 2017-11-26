@@ -40,16 +40,21 @@ spawn bash -c \"cat clean_host.sh | ssh -o 'StrictHostKeyChecking no' root@$ip '
 expect -re \".*password.*\" {send \"$pass\r\"}
 expect eof"
 q=$(expect -c "set timeout -1
-spawn ssh root@$ip \"test -z \\\"\\\$(docker images | grep $image_name)\\\" && echo do not || echo do \"
+spawn ssh root@$ip \"mkdir -p $remote; test -z \\\"\\\$(docker images | grep $image_name)\\\" && echo do not || echo do \"
 expect -re \".*password.*\" {send \"$pass\r\"}
 expect eof" | tail -n 1 | sed 's/\r//g')
 echo ">>> remote host $q have image: $image_name"
 test ! -z "$(echo $q | grep 'do not')" && expect -c "set timeout -1
-spawn scp $image_file root@$ip:$remote
+spawn scp $image_file root@$ip:$remote/$image_file
 expect -re \".*password.*\" {send \"$pass\r\"}
 expect eof"
 test ! -z "$(echo $q | grep 'do not')" && expect -c "set timeout -1
 spawn ssh root@$ip \"docker load -i $remote/$image_file\"
+expect -re \".*password.*\" {send \"$pass\r\"}
+expect eof"
+echo ">>> nfs"
+expect -c "set timeout -1
+spawn ssh root@$ip \"umount /home/share; mkdir -p /home/share && mount $sd /home/share; mkdir -p $remote_dir \"
 expect -re \".*password.*\" {send \"$pass\r\"}
 expect eof"
 echo ">>> execute run"

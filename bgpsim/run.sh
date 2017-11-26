@@ -15,7 +15,7 @@ hostinfo="$conf/host-asinfo.ip_level"
 interlinkfile="$conf/interlink.txt"
 
 
-apt-get install -y -o Acquire::ForceIPv4=true python-pip ipcalc nfs-common
+apt-get --allow-unauthenticated install -y -o Acquire::ForceIPv4=true python-pip ipcalc nfs-common
 pip install IPy
 
 echo ">> create"

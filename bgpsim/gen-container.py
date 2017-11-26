@@ -163,11 +163,11 @@ for i in range(len(asinfoLines)):
 
 
 	if len(inner_host_ip) == 0:
-		os.system("docker run -dit --privileged -h " + hostname + " --net=none "  + " --name=" + container_name  + " -v /home/yupeng/quagga:/home/quagga centos-quagga-bgp /bin/bash")
+		os.system("docker run -dit --privileged -h " + hostname + " --net=none "  + " --name=" + container_name  + " -v /home/yupeng/quagga:/home/quagga -v /home/share:/home/share centos-quagga-bgp /bin/bash")
 		os.system("sleep 1")
 	else:
 
-		os.system("docker run -dit --privileged -h " + hostname + " --net=" + network_dict[inner_host_network_number[0]] + " --name=" + container_name + " --ip=" + inner_host_ip[0].split("/")[0]  + " -v /home/yupeng/quagga:/home/quagga centos-quagga-bgp /bin/bash")
+		os.system("docker run -dit --privileged -h " + hostname + " --net=" + network_dict[inner_host_network_number[0]] + " --name=" + container_name + " --ip=" + inner_host_ip[0].split("/")[0]  + " -v /home/yupeng/quagga:/home/quagga -v /home/share:/home/share centos-quagga-bgp /bin/bash")
 		
 		os.system("sleep 1")
 
