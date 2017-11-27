@@ -5,6 +5,8 @@ web_dir="web"
 
 conf="conf"
 
+hostipfile="$conf/hostip-hostid.txt"
+hostidfile="$conf/hostid-as.txt"
 asinfo="$conf/node-list"
 aslink="$conf/link-list"
 hostinfofile="$conf/host-asinfo.ip_level"
@@ -14,7 +16,8 @@ bgpconffile="$conf/bgp-configure.txt"
 hostinfo="$conf/host-asinfo.ip_level"
 interlinkfile="$conf/interlink.txt"
 
-python gen-bgp.py $asinfo $aslink 
+#python gen-bgp.py $asinfo $aslink 
+python gen-ip-level.py $hostipfile $hostidfile $asinfo $aslink $conf
 # output file: $asInfo.ip_level $asLink.ip_level
 
 python gen-bgp-conf.py $asinfo.ip_level $aslink.ip_level $bgpsimplefile
@@ -24,13 +27,7 @@ python relation.py
 cp $bgpconffile $shared
 # Add relationships to BGP config
 
-python gen-hostinfo.py ${conf}/hostip-hostid.txt ${conf}/hostid-as.txt $asinfo.ip_level $hostinfo
-# output file: host-asinfo.ip_level
-
 # to An Yuhao
-cp $hostinfo $web_dir/conf
+cp $asinfo.ip_level $web_dir/conf
 cp $aslink.ip_level $web_dir/conf
-
-# generate interlink for openvswitch
-python gen-interlink.py $hostinfo ${aslink}.ip_level > $interlinkfile
 

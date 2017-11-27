@@ -16,9 +16,9 @@ def plen_to_netmask(plen):
 	val = 0xffffffff ^ (2 ** (32 - plen) - 1)
 	return ip_int2str(val)
 
-if len(sys.argv) < 4:
-        print "command paramter less than 3"
-        print "eg, python " + sys.argv[0] + " host-asinfo.ip_level  asrela.txt.ip_level  bgp-configure.txt"
+if len(sys.argv) < 3:
+        print "command paramter less than 2"
+        print "eg, python " + sys.argv[0] + " host-asinfo.ip_level  asrela.txt.ip_level "
         exit()
 
 ## get logical id of host(phisical machine)
@@ -65,7 +65,7 @@ if host_ip == "":
 # print host_ip
 
 
-## generate containers with host-asinfo.ip_level, asrela.txt.ip_level, bgp-configure.txt
+## generate containers with host-asinfo.ip_level, asrela.txt.ip_level
 f = open(sys.argv[2], 'r')
 linkLines = f.readlines()
 for i in range(len(linkLines)):
@@ -73,17 +73,10 @@ for i in range(len(linkLines)):
 
 f.close()
 
-f = open(sys.argv[3], 'r')
-bgpConfLines = f.readlines()
-for i in range(len(bgpConfLines)):
-	bgpConfLines[i] = bgpConfLines[i].strip()
-
-f.close()
 
 ##### basic information for using
 asinfoLines = asinfoLines
 linkLines = linkLines
-bgpConfLines = bgpConfLines
 #####
 
 
@@ -121,8 +114,7 @@ for i in range(len(linkLines)):
 	# get END
 	
 	if network_number in network_dict:
-		print "ERROR: Creating a overlapping network: " + network_number
-		exit()
+		continue
 
 	os.system("docker network create net_" + str(i + 1) + " --subnet " + network_number)
 	
@@ -141,7 +133,7 @@ for i in range(len(asinfoLines)):
 		continue
 
 	deviceType = temp_list[2]
-	ipList = temp_list[3].split("|") # ipList[0] is lo:0 interface, x.x.x.x/24
+	ipList = temp_list[3].split("|") # ipList[0] is lo:0 interface, x.x.x.x/x
 	asn = temp_list[4]
 
 	hostname = "-".join( ipList[0].split("/")[0].split(".") )
@@ -192,7 +184,7 @@ for i in range(len(asinfoLines)):
         min_host = re.split(" +", min_host)[1]
 
 	#debug
-	#os.system("docker exec " + container_name + " route del default gw " + min_host)
+	os.system("docker exec " + container_name + " route del default gw " + min_host)
 
 	# set mtu for container
 	os.system("docker exec " + container_name + " bash -c \"ifconfig |awk -v RS=  '/'\$ODMU_IP'/{print \$1}' | xargs -I %  ip link set mtu 1462 dev  % \" ")

@@ -24,7 +24,7 @@ mkdir -p $host_shared_path
 cp $shared/* $host_shared_path
 
 # put get-host-ip-address.sh and get_ip in current directory
-python gen-container.py $hostinfo $aslinkfile $bgpconffile
+python gen-container.py $asinfo.ip_level $aslink.ip_level
 
 rm -f host-ip-address 
 

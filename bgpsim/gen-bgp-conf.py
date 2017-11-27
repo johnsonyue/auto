@@ -3,9 +3,9 @@ import sys
 import re
 from IPy import IP
 
-if len(sys.argv) < 3:
-	print "command paramter less than 2"
-	print "eg, python " + sys.argv[0] + " asinfo.txt.ip_level asrela.txt.ip_level"
+if len(sys.argv) < 4:
+	print "command paramter less than 3"
+	print "eg, python " + sys.argv[0] + " node-list.ip_level  link-list.ip_level  output_file_name"
 	exit()
 
 fnode = open(sys.argv[1], 'r')
@@ -28,7 +28,7 @@ for i in nodeLines:
 
 	temp_list = i.split("#")
 
-	ip_list = temp_list[1].split("|")
+	ip_list = temp_list[3].split("|")
 	container_name = ip_list[0].split("/")[0]
 
 	fw.writelines(container_name + "\n")
@@ -67,10 +67,10 @@ for i in nodeLines:
 	fw.writelines("log file /var/log/quagga/quagga.log\n")
 	fw.writelines("log stdout\n")
 
-	asn = temp_list[2] 
+	asn = temp_list[4] 
 	fw.writelines("router bgp " + asn + "\n")
 	fw.writelines(" bgp router-id " + container_name.split("/")[0] + "\n")
-	fw.writelines(" network " + temp_list[4] +  "\n")
+	fw.writelines(" network " + temp_list[6] +  "\n")
 	fw.writelines(" timers bgp 10 30\n")
 	#fw.writelines(" timers connect 60\n")
 
