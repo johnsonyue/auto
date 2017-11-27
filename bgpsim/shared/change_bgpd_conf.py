@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """
 Created on Mon Nov 20 19:22:39 2017
-
+要三个参数：keepalive时间 holdtime时间 bgp重连时间
+作用：修改/etc/quagga/bgpd.conf 并重启服务
 @author: zyl
 """
 import sys
@@ -17,7 +18,7 @@ hold_time_insert = 0
 for line in f:
     if 'neighbor'in line and 'remote-as' in line:
         if hold_time_insert == 0:
-            str = str + ' timers bgp ' + hold_time + '\n'
+            str = str + 'timers bgp ' + hold_time + '\n'
             hold_time_insert = 1
     if 'timers bgp' not in line and 'timers connect' not in line: 
         str = str + line
