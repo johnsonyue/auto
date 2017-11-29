@@ -6,6 +6,8 @@ from IPy import IP
 import socket
 import struct
 
+# FUNCTION SECTION
+############################
 def ip_str2int(ip):
   packedIP = socket.inet_aton(ip)
   return struct.unpack("!L", packedIP)[0]
@@ -15,6 +17,28 @@ def ip_int2str(i):
 def plen_to_netmask(plen):
 	val = 0xffffffff ^ (2 ** (32 - plen) - 1)
 	return ip_int2str(val)
+
+def calc_network(ip_with_len):
+	ipaddr_str, ipaddr_len = ip_with_len.split('/')
+	
+	netmask = plen_to_netmask(int( ipaddr_len ))
+	
+	return ip_int2str( ip_str2int(ipaddr_str) & ip_str2int(netmask) )
+
+# function test
+
+#ip = sys.argv[1]
+#print calc_network( ip ) + "/" + ip.split("/")[1]
+#network_number_split = calc_network( ip ).split(".")
+#min_host = network_number_split[0] + "." +  network_number_split[1] + "." + \
+#                network_number_split[2] + "." + str( int( network_number_split[3] ) + 1 )
+#print min_host
+#exit()
+
+# test ends
+
+# SECTION ENDS
+############################
 
 if len(sys.argv) < 3:
         print "command paramter less than 2"
@@ -107,10 +131,10 @@ for i in range(len(linkLines)):
 		continue
 
 	# get network number
-	resFile = os.popen("ipcalc " + interface_1 + " | grep 'Network:'")
-	res = resFile.readlines()[0][:-1]
-        network_number = re.split(" +", res)[1]
-	# print network_number
+	#resFile = os.popen("ipcalc " + interface_1 + " | grep 'Network:'")
+	#res = resFile.readlines()[0][:-1]
+        #network_number = re.split(" +", res)[1]
+	network_number = calc_network( interface_1 ) + "/" + interface_1.split("/")[1]
 	# get END
 	
 	if network_number in network_dict:
@@ -144,8 +168,9 @@ for i in range(len(asinfoLines)):
 	inner_host_ip = []
 	inner_host_network_number = []
 	for ip_index in range(1, len(ipList)):
-		network_number = (os.popen("ipcalc " + ipList[ip_index] + " | grep 'Network:'")).readlines()[0][:-1]
-		network_number = re.split(" +", network_number)[1]
+		#network_number = (os.popen("ipcalc " + ipList[ip_index] + " | grep 'Network:'")).readlines()[0][:-1]
+		#network_number = re.split(" +", network_number)[1]
+		network_number = calc_network( ipList[ip_index] ) + "/" + ipList[ip_index].split("/")[1]
 
 		if network_number in network_dict:
 			inner_host_ip.append(ipList[ip_index])
@@ -153,6 +178,7 @@ for i in range(len(asinfoLines)):
 		else:
 			is_inter_host_container = True 
 
+	default_route = ""
 
 	if len(inner_host_ip) == 0:
 		os.system("docker run -dit --privileged -h " + hostname + " --net=none "  + " --name=" + container_name  + " -v /home/yupeng/quagga:/home/quagga -v /home/share:/home/share centos-quagga-bgp /bin/bash")
@@ -163,28 +189,28 @@ for i in range(len(asinfoLines)):
 		
 		os.system("sleep 1")
 
+		# get default gateway ip address
+		network_number_split = inner_host_network_number[0].split("/")[0].split(".")
+		default_route = network_number_split[0] + "." +  network_number_split[1] + "." + \
+                        		network_number_split[2] + "." + str( int( network_number_split[3] ) + 1 )
+
 		for ip_index in range(1, len(inner_host_ip)):
 			os.system("docker network connect --ip " + inner_host_ip[ip_index].split("/")[0] + " " + network_dict[inner_host_network_number[ip_index]] + " " + container_name)
 			
 	
 	print "Created container, Name: " + container_name + ", IP: ",
-
 	for ip in ipList:
 		print ip,
-
 	print "\n"	
 
+	# add lo:0 ip address
 	plen = ipList[0].split("/")[1]	
-
 	netmask = plen_to_netmask( int(plen) )
 	os.system("docker exec " + container_name + " ifconfig lo:0 " + container_name + " netmask " + netmask + " up")
 	
 	# delete default gw of bgp router, gw is to physic machine
-        min_host = os.popen("ipcalc " + ipList[1] + " | grep 'HostMin:'").readlines()[0][:-1]
-        min_host = re.split(" +", min_host)[1]
-
-	#debug
-	os.system("docker exec " + container_name + " route del default gw " + min_host)
+	if default_route != "":
+		os.system("docker exec " + container_name + " route del default gw " + default_route)
 
 	# set mtu for container
 	os.system("docker exec " + container_name + " bash -c \"ifconfig |awk -v RS=  '/'\$ODMU_IP'/{print \$1}' | xargs -I %  ip link set mtu 1462 dev  % \" ")

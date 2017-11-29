@@ -17,7 +17,7 @@ def output_change(file_name):
     time_list = []
     content = {}
     for i in range(len(lines)):
-        if 'Keepalive' in lines[i] or 'Open' in lines[i] or 'Notification' in lines[i]:
+        if 'Keepalive' in lines[i] or 'Open' in lines[i] or 'Notification' in lines[i] or 'Update' in lines[i]:
             if 'Notification' in lines[i]:
                 result = 'result:disconnection.'
             message = ''
@@ -39,8 +39,9 @@ def output_change(file_name):
         f.write(content[t])
     f.close()
 
-ip = sys.argv[1]
-listen_time = sys.argv[2]
+name_ip = sys.argv[1]
+ip = sys.argv[2]
+listen_time = sys.argv[3]
 
 kill_arg = 'killall tcpdump'
 
@@ -51,7 +52,6 @@ kill_arg = 'killall tcpdump'
 #for i in range(len(lines)):
 #    if ip in lines[i]:
 #        eth = lines[i].split()[-1]
-print '123'
 ip_sub = ip.split('.')  
 prefix = ip_sub[0] + '.' + ip_sub[1] + '.0.0'
 ip_info = os.popen('route -n | grep ' + prefix).read()
@@ -62,9 +62,8 @@ if prefix in  ip_info:
 if eth == 'None':
     print 'ip not have interface'
     os._exit(0)
-print 'listen' + eth
 now_time = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-file_name = '/home/quagga/ori_' + ip + '_' + now_time + '.txt'
+file_name = '/home/quagga/ori_' + name_ip + '_' + now_time + '.txt'
 os.system('tcpdump -n -i ' +  eth + ' tcp -vv > ' + file_name + ' &')
 time.sleep(int(listen_time))
 os.system('killall tcpdump')
