@@ -17,6 +17,7 @@ interlinkfile="$conf/interlink.txt"
 
 apt-get --allow-unauthenticated install -y -o Acquire::ForceIPv4=true python-pip ipcalc nfs-common
 pip install IPy
+pip install tornado
 
 echo ">> create"
 
