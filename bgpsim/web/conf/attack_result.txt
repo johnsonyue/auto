@@ -1,0 +1,6 @@
+Shutting down bgpd: [  OK  ]
+Starting bgpd: [  OK  ]
+Shutting down bgpd: [  OK  ]
+Starting bgpd: [  OK  ]
+wondershaper success.
+bgp restart success.

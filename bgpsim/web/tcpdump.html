@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Tcpdump</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="AYH">
+    <link href="static/assets/css/bootstrap.css" rel="stylesheet">
+    <link href="static/assets/css/theme.css" rel="stylesheet">
+    <link href="static/assets/css/font-awesome.min.css" rel="stylesheet">
+    <link href="static/assets/css/alertify.css" rel="stylesheet">   
+    <link href="static/assets/css/colorpicker.css" rel="stylesheet">
+    <link href="static/assets/css/datepicker.css" rel="stylesheet">
+    <link href="static/assets/css/timepicker.css" rel="stylesheet">
+    <link href="static/assets/css/select2.css" rel="stylesheet">
+  </head>
+  <body>
+  <div id="wrap">
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          
+
+          <div class="top-menu visible-desktop">
+            <ul class="pull-right">  
+              <li><a href="login.html"><i class="icon-off"></i> Logout</a></li>
+            </ul>
+          </div>
+
+          <div class="top-menu visible-phone visible-tablet">
+            <ul class="pull-right">  
+              <li><a href="login.html"><i class="icon-off"></i></a></li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
+    <div class="container-fluid">
+     
+      <!-- Main window -->
+      <div class="container" id="forms_page">
+        <div class="row-fluid">
+          <ul class="breadcrumb">            
+            <li class="active"><a href="/" target="_blank">拓扑图</a><span class="divider">|</span></li>
+            <li class="active"><a href="/form" target="_blank">攻击表单</a><span class="divider">|</span></li>
+            <li class="active"><a href="xielou" target="_blank">BGP泄漏</a><span class="divider">|</span></li>
+            <li class="active"><a href="pinggraph" target="_blank">Ping</a><span class="divider">|</span></li> 
+            <li class="active"><a href="traceroute" target="_blank">Traceroute</a><span class="divider">|</span></li> 
+            <li class="active">Tcpdump</li> 
+
+          </ul>
+          <h2 class="heading">
+                Tcpdump               
+          </h2>
+        </div>
+        
+        <div class="row-fluid">
+
+
+          <div class="widget widget-padding span12" style="margin-top: 20px;margin-bottom: 20px;">
+            <div class="widget-header">
+                <i class="icon-desktop"></i>
+                    <h5>Tcpdump</h5>
+                <div class="widget-buttons">
+                    <a href="javascript:void(0)" class="collapse" data-collapsed="false"><i data-title="Collapse" class="icon-chevron-up"></i></a>
+                </div>
+            </div>
+
+            <div class="widget-body clearfix" style="min-height: 500px;">
+            
+              <!-- <form class="form-inline">
+                <input type="text" class="span4" placeholder="Email">
+                <input type="password" class="span4" placeholder="Password">
+                <button type="submit" class="btn btn-success">Sign in</button>
+              </form> -->
+              <!-- <div class="span2"></div> -->
+              <form class="form-inline span8 center" style="margin-bottom:16px;"">
+                <div class="input-append">
+                  <span class="add-on">从</span><input type="text" id="traceip1" required placeholder="发起traceroute的ip">
+                </div>
+                <!-- <input type="text" class="span4" placeholder="Username"> -->
+                <div class="input-append">
+                  <span class="add-on">到</span><input type="text" id="traceip2" required placeholder="traceroute的目的地址">
+                </div>
+                <button class="btn btn-primary" type="button" onclick="trace1();">Traceroute</button>
+                <!-- <button class="btn btn-primary" type="button" onclick="stopping1();">停止</button> -->
+              </form>
+              <HR align=center width=100% color=#999 SIZE=3 style="FILTER: alpha(opacity=100,finishopacity=0,style=1)">
+
+              <div class="span12">
+                  <p id="traceresult"> </p>
+              </div>
+
+              <!-- 从<input type="text" name="ip1">到<input type="text" name="ip2"><input type="button" value="开始"> -->
+            
+            
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>  
+        
+
+  </div><!-- wrap ends-->
+   <!--  </div>/.fluid-container -->
+    <script type="text/javascript" src="static/assets/js/jquery.min.js"></script>
+    <script type="text/javascript" src="static/assets/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="static/assets/js/raphael-min.js"></script>
+    <script type="text/javascript" src="static/assets/js/bootstrap.js"></script>
+    <script type="text/javascript" src='static/assets/js/sparkline.js'></script>
+    <script type="text/javascript" src='static/assets/js/morris.min.js'></script>
+    <script type="text/javascript" src="static/assets/js/jquery.dataTables.min.js"></script>   
+    <script type="text/javascript" src="static/assets/js/jquery.masonry.min.js"></script>   
+    <script type="text/javascript" src="static/assets/js/jquery.imagesloaded.min.js"></script>   
+    <script type="text/javascript" src="static/assets/js/jquery.facybox.js"></script>   
+    <script type="text/javascript" src="static/assets/js/jquery.alertify.min.js"></script> 
+    <script type="text/javascript" src="static/assets/js/jquery.knob.js"></script>
+    <script type='text/javascript' src='static/assets/js/fullcalendar.min.js'></script>
+    <script type='text/javascript' src='static/assets/js/jquery.gritter.min.js'></script>
+    <script type="text/javascript" src="static/assets/js/realm.js"></script>
+    <script type="text/javascript" src="static/assets/js/jquery.slimscroll.min.js"></script>
+  
+    <script type="text/javascript" src="static/assets/js/select2.min.js"></script>
+    <script type="text/javascript" src="static/assets/js/bootstrap-colorpicker.js"></script>
+    <script type="text/javascript" src="static/assets/js/bootstrap-datepicker.js"></script>
+    <script type="text/javascript" src="static/assets/js/bootstrap-timepicker.js"></script>
+    <script src="static/dist/echarts.js"></script>
+    <script type="text/javascript">var timeTicket;var tracestart=0;</script>
+    <script type="text/javascript">
+      function trace1() {
+        var xmlhttp;
+        if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+          xmlhttp=new XMLHttpRequest();
+        }
+        else{// code for IE6, IE5
+          xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xmlhttp.open("GET","trace?start=0&ip1="+document.getElementById("traceip1").value+"&ip2="+document.getElementById("traceip2").value,true);
+        xmlhttp.send();
+        tracestart = 1;
+      };
+
+    </script>
+    <script type="text/javascript">
+        var xmlhttp;
+        if (window.XMLHttpRequest)
+        {// code for IE7+, Firefox, Chrome, Opera, Safari
+          xmlhttp=new XMLHttpRequest();
+        }
+        else
+        {// code for IE6, IE5
+          xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        var xmlhttp2;
+        if (window.XMLHttpRequest)
+        {// code for IE7+, Firefox, Chrome, Opera, Safari
+          xmlhttp2=new XMLHttpRequest();
+        }
+        else
+        {// code for IE6, IE5
+          xmlhttp2=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        clearInterval(timeTicket);
+        var result="";
+        var stopflag="0";
+        timeTicket = setInterval(function (){
+          if (tracestart==1){
+            xmlhttp.open("GET","trace?start=1",true);
+            xmlhttp.send();
+            
+            xmlhttp.onreadystatechange=function()
+            {
+                if ((xmlhttp.readyState==4 && xmlhttp.status==200) || (xmlhttp.status==304 && xmlhttp.readyState==1))
+                {
+                   stopflag=xmlhttp.responseText;
+                }
+            }
+
+            xmlhttp2.open("GET","trace?start=2",true);
+            xmlhttp2.send();
+            
+            xmlhttp2.onreadystatechange=function()
+            {
+                if ((xmlhttp2.readyState==4 && xmlhttp2.status==200) || (xmlhttp2.status==304 && xmlhttp2.readyState==1))
+                {
+                   result=xmlhttp2.responseText;
+                }
+            }
+            document.getElementById("traceresult").innerHTML=result; 
+
+            if (stopflag=="1")
+                tracestart=0;
+          }
+        }, 1200);
+
+    </script>
+  </body>
+</html>

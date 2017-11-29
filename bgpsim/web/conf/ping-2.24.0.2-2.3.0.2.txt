@@ -1,0 +1,2 @@
+spawn bash -c cat .run-ssh | ssh -o 'StrictHostKeyChecking no' root@10.10.11.131 'bash -s'
+root@10.10.11.131's password: 

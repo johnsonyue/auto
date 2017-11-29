@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+    <title>拓扑图</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="AYH">
+    <link href="static/assets/css/bootstrap.css" rel="stylesheet">
+    <link href="static/assets/css/theme.css" rel="stylesheet">
+    <link href="static/assets/css/font-awesome.min.css" rel="stylesheet">
+    <link href="static/assets/css/alertify.css" rel="stylesheet">   
+    <link href="static/assets/css/colorpicker.css" rel="stylesheet">
+    <link href="static/assets/css/datepicker.css" rel="stylesheet">
+    <link href="static/assets/css/timepicker.css" rel="stylesheet">
+    <link href="static/assets/css/select2.css" rel="stylesheet">
+</head>
+<body>
+<style>
+
+.links line {
+  stroke: #333;
+  stroke-opacity: 0.7;
+}
+
+.nodes circle {
+  stroke: #FFF;
+  stroke-width: 1.5px;
+}
+
+</style>
+  <div id="wrap">
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          
+
+          <div class="top-menu visible-desktop">
+            <ul class="pull-right">  
+              <li><a href="/login"><i class="icon-off"></i> Logout</a></li>
+            </ul>
+          </div>
+
+          <div class="top-menu visible-phone visible-tablet">
+            <ul class="pull-right">  
+              <li><a href="/login"><i class="icon-off"></i></a></li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
+    <div class="container-fluid">
+     
+      <!-- Main window -->
+      <div class="container" id="forms_page">
+        <div class="row-fluid">
+          <ul class="breadcrumb">            
+            <li class="active">拓扑图<span class="divider">|</span></li>
+            <li class="active"><a href="/form" target="_blank">攻击表单</a><span class="divider">|</span></li>
+            <li class="active"><a href="xielou" target="_blank">BGP泄漏</a><span class="divider">|</span></li>
+            <li class="active"><a href="pinggraph" target="_blank">Ping</a><span class="divider">|</span></li> 
+            <li class="active"><a href="traceroute" target="_blank">Traceroute</a><span class="divider">|</span></li> 
+            <li class="active"><a href="tcpdump" target="_blank">Tcpdump</a></li>
+          </ul>
+          <h2 class="heading">
+                攻击BGP路由器
+          </h2>
+        </div>
+        <div class="row-fluid">
+          <div class="widget widget-padding span12" style="margin-bottom: 30px;">
+            <div class="widget-header">
+              <i class="icon-picture"></i><h5>拓扑图</h5>
+              <div class="widget-buttons">
+                  <a href="#" data-title="Collapse" data-collapsed="false" class="tip collapse"><i class="icon-chevron-up"></i></a>
+              </div>
+            </div>
+            <div class="widget-body">
+              <p>图形密集程度： <input type="range" id="slide1" min="2" max="300" value="30" step="2"  style="width:100px;margin-bottom: 10px;"> 点的大小： <input type="range" id="slide2" min="0" max="50" value="4" step="1"  style="width:100px;margin-bottom: 10px;"></p>  <!-- onchange="clearsvg();plot(this.value);" -->
+              <svg width="1150" height="700">
+                 
+              </svg>
+              <!-- <svg width="1000" height="600">
+                 <rect fill="none" stroke="#999" 
+                      x="0" y="0" width="998" height="598"/>
+              </svg> -->
+            </div>
+          </div>
+          <!-- <div class="widget widget-padding span4">
+            <div class="widget-header">
+              <i class="icon-list-alt"></i><h5>具体信息</h5>
+              <div class="widget-buttons">
+                  <a href="#" data-title="Collapse" data-collapsed="false" class="tip collapse"><i class="icon-chevron-up"></i></a>
+              </div>
+            </div>
+            <div class="widget-body">
+              <p id="px">详细信息</p>
+              <ul id="ull" class="list-group">
+
+              </ul>
+            </div>
+          </div> -->
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript" src="static/assets/js/jquery.min.js"></script>
+    <script type="text/javascript" src="static/assets/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="static/assets/js/raphael-min.js"></script>
+    <script type="text/javascript" src="static/assets/js/bootstrap.js"></script>
+    <script type="text/javascript" src='static/assets/js/sparkline.js'></script>
+    <script type="text/javascript" src='static/assets/js/morris.min.js'></script>
+    <script type="text/javascript" src="static/assets/js/jquery.dataTables.min.js"></script>   
+    <script type="text/javascript" src="static/assets/js/jquery.masonry.min.js"></script>   
+    <script type="text/javascript" src="static/assets/js/jquery.imagesloaded.min.js"></script>   
+    <script type="text/javascript" src="static/assets/js/jquery.facybox.js"></script>   
+    <script type="text/javascript" src="static/assets/js/jquery.alertify.min.js"></script> 
+    <script type="text/javascript" src="static/assets/js/jquery.knob.js"></script>
+    <script type='text/javascript' src='static/assets/js/fullcalendar.min.js'></script>
+    <script type='text/javascript' src='static/assets/js/jquery.gritter.min.js'></script>
+    <script type="text/javascript" src="static/assets/js/realm.js"></script>
+    <script type="text/javascript" src="static/assets/js/select2.min.js"></script>
+    <script type="text/javascript" src="static/assets/js/bootstrap-colorpicker.js"></script>
+    <script type="text/javascript" src="static/assets/js/bootstrap-datepicker.js"></script>
+    <script type="text/javascript" src="static/assets/js/bootstrap-timepicker.js"></script>
+
+    <script src="static/assets/js/d3.js"></script>
+    <script src="static/assets/js/d3-selection-multi.v1.js"></script>
+    <script>
+    function clearsvg() {
+      var svg = d3.select("svg");
+      svg.selectAll("g").remove();
+    };
+    // function plot(lisan) {
+
+      d3.select("#slide1")
+        .on("input", inputted);
+
+      d3.select("#slide2")
+        .on("input", inputted2);
+
+      var svg = d3.select("svg"),
+          width = +svg.attr("width"),
+          height = +svg.attr("height");
+
+      svg.append('defs').append('marker')
+          .attrs({'id':'arrowhead',
+              'viewBox':'-0 -5 10 10',
+              'refX':20,
+              'refY':0,
+              'orient':'auto',
+              'markerWidth':5,
+              'markerHeight':5,
+              'xoverflow':'visible'})
+          .append('svg:path')
+          .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+          .attr('fill', '#888')
+          .style('stroke','none')
+          .style("stroke-opacity", 0.7);
+
+      svg.append('defs').append('marker')
+          .attrs({'id':'arrowhead2',
+              'viewBox':'-0 -5 10 10',
+              'refX':-10,
+              'refY':0,
+              'orient':'auto',
+              'markerWidth':5,
+              'markerHeight':5,
+              'xoverflow':'visible'})
+          .append('svg:path')
+          .attr('d', 'M 0,0 L 10 ,-5 L 10,5')
+          .attr('fill', '#888')
+          .style('stroke','none')
+          .style("stroke-opacity", 0.7);
+
+      var color = d3.scaleOrdinal(d3.schemeCategory20);
+   
+      var simulation = d3.forceSimulation()
+          .force("link", d3.forceLink().id(function(d) { return d.id; }).iterations(200)) //.distance(lisan).strength(1)
+          .force("charge", d3.forceManyBody().strength([-30])) //
+          .force("center", d3.forceCenter(width / 2, height / 2));
+
+      d3.json("myjson", function(error, graph) {
+        if (error) throw error;
+
+        var link = svg.append("g")
+            .attr("class", "links")
+          .selectAll("line")
+          .data(graph.links)
+          .enter().append("line")
+            .attr("stroke-width", function(d) { return 1; })//Math.sqrt(d.value);
+            .attr('marker-end',function(d) { 
+              if (d.shangye == "P2C") return "";
+              else return 'url(#arrowhead)';
+              })
+            .attr("marker-start",function(d) { 
+              if (d.shangye == "C2P") return "";
+              else return 'url(#arrowhead2)';
+              });
+
+        link.append("title").text(function (d) {
+          return d.zhanshi;
+        });
+        
+        var radius = 3;
+
+        d3.selectAll("line").on("click",function(d) {
+              if (d.click==0) {
+                d3.select(this).style("stroke","#DC143C");
+                d.click=1;
+              }
+              else {
+                d3.select(this).style("stroke","#333");
+                d.click=0;
+              }
+              
+            });
+
+        var node = svg.selectAll(".node")
+                      .data(graph.nodes)
+                    .enter().append("g")
+                      .attr("class", "node");                    
+
+
+        node.append("circle")
+            // .attr("r", 5)
+            // .attr("fill", function(d) { return color(d.group); })
+            .attr("stroke","#666")
+            .attr("stroke-width","1px")
+            .attr("fill","#87CEEB")
+            // .attr("x", "-8px")  6495ED
+            // .attr("y", "-8px")
+            .attr("r","5")
+            .on("click",function(d) {            
+              if (d.click==0) {
+                d3.select(this).attr("fill","red")
+                d3.select("#"+d.id).style("font-size", 15);
+                d.click=1;
+              }
+              else {
+                d3.select(this).attr("fill","#87CEEB")
+                d3.select("#"+d.id).style("font-size", 9);
+                d.click=0;
+              }
+            })
+            .on("dblclick",function (d) {;
+              d3.select(this)
+                .attr("fx",d.x)
+                .attr("fy",d.y)          
+            })
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+
+        
+        // img = svg.selectAll("image").
+
+        node.append("title")
+            .text(function (d) {
+              s = "IP地址 : ";
+              if (d.type == "host"){
+                s += d.ip+"\n";
+              }
+              else{
+                s += d.ip[0] +"\n";
+                for (var i = 1; i <= d.ip.length - 1; i++) {
+                   s += "\t" + d.ip[i] + "\n";
+                }
+              }
+              s+="ASN : " + d.ASN;
+              if (("asname" in d )&&("prefix" in d)){
+                s +="\nAS名称 : " + d.asname + "\n声明前缀 : " + d.prefix;
+              }
+              if (("suzhuip" in d )&&("suzhuid" in d)){
+                s +="\n宿主机IP地址 : " + d.suzhuip + "\n宿主机ID : " + d.suzhuid;
+              }
+              return s;
+            });
+
+        node.append("text")
+            .attr("dx", 0)
+            .attr("dy", ".35em")            
+            // .attr("dx", 12)
+            // .attr("dy", 10)
+            .attr("id", function(d) {
+              return d.id;
+            })
+            .attr("style","background-color:white;opacity:1;")
+            .style("text-anchor", "middle")
+            .style("fill", "#444")
+            .style("font-family", "Arial")
+            .style("font-size", 9)
+            .text(function(d) { 
+              // if (d.type == "host")
+              // {
+              //   return d.ASN+":"+d.ip;
+              // }
+              // else if (d.type == "switch"){
+              //   return " ";
+              // }
+              // else{
+              //   return d.ASN+":"+d.ip[0];
+              // }
+              return d.ASN;
+            })
+            .call(getBB);
+
+        node.insert("rect","text")
+            // .attr("width",70)
+            // .attr("height",9)
+            .attr("width", function(d){return d.bbox.width})
+            .attr("height", function(d){return d.bbox.height})
+            .attr("fill","white")
+        // textNode.append("text") 
+        //     .attr("class", "text")
+        //     .attr("text-anchor", "middle")
+               
+        // textNode.insert("rect","text")
+            
+        //     .style("fill", "yellow");
+
+        function getBB(selection) {
+            selection.each(function(d){d.bbox = this.getBBox();})
+        }
+
+        simulation
+            .nodes(graph.nodes)
+            .on("tick", ticked);
+
+        simulation.force("link")
+            .links(graph.links);
+
+        function ticked() {
+          link
+              .attr("x1", function(d) { return d.source.x; })
+              .attr("y1", function(d) { return d.source.y; })
+              .attr("x2", function(d) { return d.target.x; })
+              .attr("y2", function(d) { return d.target.y; });
+          node.selectAll("circle")
+              .attr("cx", function(d) { return d.x; })
+              .attr("cy", function(d) {  return d.y; });
+          node.selectAll("text")
+              .attr("x", function(d) { return d.x-12+10; })
+              .attr("y", function(d) {  return d.y-15+5; });
+          node.selectAll("rect")
+              .attr("x", function(d) { return d.x-12; })
+              .attr("y", function(d) {  return d.y-15; });
+
+          // node.selectAll("image")
+          //     .attr("x", function(d) { d.x = Math.max(radius, Math.min(width - radius, d.x)); return d.x-10; })
+          //     .attr("y", function(d) { d.y = Math.max(radius, Math.min(height - radius, d.y)); return d.y-10; });
+          // node.selectAll("text")
+          //     .attr("x", function(d) { d.x = Math.max(radius, Math.min(width - radius, d.x)); return d.x-20; })
+          //     .attr("y", function(d) { d.y = Math.max(radius, Math.min(height - radius, d.y)); return d.y-20; });
+          // node.selectAll("rect")
+          //     .attr("x", function(d) { d.x = Math.max(radius, Math.min(width - radius, d.x)); return d.x-40; })
+          //     .attr("y", function(d) { d.y = Math.max(radius, Math.min(height - radius, d.y)); return d.y-18; });
+        }
+
+      });
+      
+      function inputted() {
+        simulation.force("charge").strength(-this.value);    
+        simulation.alpha(0.5).restart();
+      }
+
+      function inputted2() {
+        d3.selectAll("circle").attr("r",this.value);    
+        simulation.alpha(0.5).restart();
+      }
+
+      function dragstarted(d) {
+        if (!d3.event.active) {
+          simulation.alphaTarget(0.5).restart();          
+        }
+        d.fx = d.x;
+        d.fy = d.y;        
+      }
+
+      function dragged(d) {
+        if (!d3.event.active) {
+          d.fx = d3.event.x;
+          d.fy = d3.event.y;
+        }
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+      }
+
+      function dragended(d) {
+        if (!d3.event.active) {
+          simulation.alphaTarget(0);        
+        }
+        d.fx = d.x;
+        d.fy = d.y;
+      }
+    // }
+    </script>
+</body>
+</html>

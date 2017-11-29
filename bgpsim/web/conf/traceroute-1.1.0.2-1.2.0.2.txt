@@ -1,0 +1,2 @@
+spawn bash -c cat .run-ssh | ssh -o 'StrictHostKeyChecking no' root@ 'bash -s'
+ssh: Could not resolve hostname : No address associated with hostname
