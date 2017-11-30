@@ -1,4 +1,4 @@
-host_file=conf/host-asinfo.ip_level
+host_file=conf/node-list.ip_level
 ip=$(grep $1 $host_file | cut -d'#' -f1 | head -n 1)
 pass=1q2w3e4r
 script="$2"

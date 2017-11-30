@@ -220,7 +220,7 @@ class ShoHandler(tornado.web.RequestHandler):
 
         info.close()
 
-        os.popen("python " + shared_dir + "auto.py > conf/attack_result.txt")
+        os.popen("./ssh-run.sh "+control_ip+" \"python " + shared_dir + "auto.py > conf/attack_result.txt \"")
         # os.popen("./ssh-run.sh " + control_ip + " \"docker exec " + control_ip +
         #          " bash -c \'python " + dockerpath + "bot_control.py &\'\"")
         # print("./ssh-run.sh " + control_ip + " \"docker exec " + control_ip +

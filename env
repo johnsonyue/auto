@@ -1,0 +1,6 @@
+#!/bin/bash
+
+apt-get install -y expect python-pip
+
+pip install ConfigParser
+pip install IPy
