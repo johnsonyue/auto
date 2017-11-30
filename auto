@@ -6,8 +6,7 @@ for i in $(seq 0 $(($(echo ${ka[@]} | wc -w)-1))); do test "$3" == "${ka[$i]}" &
 }
 
 #step 0: get hosts info.
-#printf "password: " && read -s pass && echo;
-pass=hitnis1q2w3e4r
+printf "password: " && read -s pass && echo;
 remote_dir="/home/hitnis"
 sd="10.10.11.132:/home/hitnis/share/"
 tar="bgpsim"
@@ -72,4 +71,4 @@ for i in ${ia[@]}; do
 done
 wait
 
-./build_interlink.sh
+./build_interlink.sh $1
