@@ -12,6 +12,7 @@ conf = ConfigParser.ConfigParser()
 conf.read("conf/web.conf")
 shared_dir = conf.get("path", "sharepath")
 dockerpath = conf.get("path", "dockerpath")
+remotepath = conf.get("path", "remotepath")
 
 canshu = {}
 canshu["first_flag"] = True
@@ -220,7 +221,10 @@ class ShoHandler(tornado.web.RequestHandler):
 
         info.close()
 
-        os.popen("./ssh-run.sh "+control_ip+" \"python " + shared_dir + "auto.py > conf/attack_result.txt \"")
+        print ("./ssh-run.sh "+control_ip+" \"sh -c 'cat >"+shared_dir+"attack_info.cfg << EOT\\n$(cat "+shared_dir+"attack_info.cfg)'\"")
+        os.popen("./ssh-run.sh "+control_ip+" \"sh -c 'cat >"+shared_dir+"attack_info.cfg << EOT\\n$(cat "+shared_dir+"attack_info.cfg)'\"")
+        print ("./ssh-run.sh "+control_ip+" \"python " + shared_dir + "auto.py > "+remotepath+"conf/attack_result.txt \"")
+        os.popen("./ssh-run.sh "+control_ip+" \"python " + shared_dir + "auto.py > "+remotepath+"conf/attack_result.txt \"")
         # os.popen("./ssh-run.sh " + control_ip + " \"docker exec " + control_ip +
         #          " bash -c \'python " + dockerpath + "bot_control.py &\'\"")
         # print("./ssh-run.sh " + control_ip + " \"docker exec " + control_ip +
@@ -397,7 +401,7 @@ class ResultHandler(tornado.web.RequestHandler):
 
     def get(self):
         try:
-            fr = open("conf/attack_result.txt", "r")
+            fr = open(remotepath+"conf/attack_result.txt", "r")
             result = fr.read()
 
             fr.close()
