@@ -17,23 +17,19 @@ kill_arg = 'killall ping'
 
 
 now_time = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-file_name = '/home/quagga/ping_' + ip + '_' + now_time + '.txt'
-os.system('ping ' + ip + ' > ' + file_name + ' &')
 time.sleep(0.1)
 end = 0
+f = os.popen('ping ' + ip)
 while True:
-    f = open(file_name,'r')
-    for line in f:
-        if 'bytes from' in line and 'icmp_seq' in line:
-            f.close()
-            end = 1
+    line=f.readline().strip()
+    if not line:
+        f = os.popen('ping ' + ip)
+        time.sleep(1)
+        continue
+    if line[-2:] == "ms":
+            print line
+            os.system(kill_arg)
             break
-    if end == 1:
-        break
-    f.close()
-    time.sleep(1)
-        
-os.system(kill_arg)
 
 
 
