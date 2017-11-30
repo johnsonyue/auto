@@ -71,4 +71,4 @@ for i in ${ia[@]}; do
 done
 wait
 
-./build_interlink.sh $1
+./build_interlink.sh $pass

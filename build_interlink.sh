@@ -6,7 +6,7 @@ for i in $(seq 0 $(($(echo ${ka[@]} | wc -w)-1))); do test "$3" == "${ka[$i]}" &
 }
 
 #step 0: get hosts info.
-test $# -lt 1 & exit
+test $# -lt 1 && exit
 pass=$1
 remote_dir="/home/hitnis"
 docker_quagga="/home/quagga/"
