@@ -1,0 +1,23 @@
+<html>
+<body>HELLO</body>
+<script>
+var host="10.11.118.68";
+var wsport="8881";
+function start_ws(){
+    ws = new WebSocket("ws://" + host + ":" + wsport + "/ws");
+     
+    ws.onmessage = function(evt) {
+      console.log("message received: " + evt.data);
+    };
+    ws.onclose = function(evt) {
+      console.log("Connection close");
+    };
+    ws.onopen = function(evt) { 
+      ws.send('{"id":"2.1.0.2-2.50.0.2"}');
+      console.log("Connection Opened");
+      
+    };
+}
+start_ws();
+</script>
+</html>

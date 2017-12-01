@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -50,15 +49,13 @@
             <li class="active"><a href="xielou" target="_blank">BGP泄漏</a><span class="divider">|</span></li>
             <li class="active"><a href="pinggraph" target="_blank">Ping</a><span class="divider">|</span></li> 
             <li class="active"><a href="traceroute" target="_blank">Traceroute</a><span class="divider">|</span></li> 
-             <li class="active"><a href="traceroute2" target="_blank">Traceroute2</a><span class="divider">|</span></li> 
-            <li class="active"><a href="routetable" target="_blank">Routetable</a><span class="divider">|</span></li>
             <li class="active"><a href="tcpdump" target="_blank">Tcpdump</a></li>
           </ul>
           <h2 class="heading">
                 Ping                
           </h2>
         </div>
-        <!-- <p id="px"></p> -->
+        
         <div class="row-fluid">
 
 
@@ -71,7 +68,7 @@
             </div>
           </div>
           <div class="widget-body clearfix">
-                
+            
               <!-- <form class="form-inline">
                 <input type="text" class="span4" placeholder="Email">
                 <input type="password" class="span4" placeholder="Password">
@@ -86,7 +83,7 @@
                 <div class="input-append">
                   <span class="add-on">到</span><input type="text" id="ping2ip2" placeholder="ping的目的地址">
                 </div>
-                <button class="btn btn-primary" type="button" onclick="startping1();">Ping</button>
+                <button class="btn btn-primary" type="button" onclick="startwsping1();">Ping</button>
                 <button class="btn btn-primary" type="button" onclick="stopping1();">停止</button>
               </form>
               <div class="span1"></div>
@@ -147,10 +144,32 @@
     <script type="text/javascript">
         var timeTicket;var timeTicket2;var pingstart=0;var pingstart2=0;
         var ping2ip1,ping2ip2,ping2ip3,ping2ip4;
-        var icmp_seq = 0;
-        var rtt = 0.0; 
     </script>
+
     <script type="text/javascript">
+var host="10.11.118.68";
+var wsport="8881";
+function start_ws1(id){
+    ws = new WebSocket("ws://" + host + ":" + wsport + "/ws");
+     
+    ws.onmessage = function(evt) {
+      console.log("message received: " + evt.data);
+    };
+    ws.onclose = function(evt) {
+      console.log("Connection close");
+    };
+    ws.onopen = function(evt) { 
+      ws.send('{"id":"'+id+'"}');
+      console.log("Connection Opened");
+      
+    };
+}
+
+function startwsping1(){
+        ping2ip1=document.getElementById("ping2ip1").value;
+        ping2ip2=document.getElementById("ping2ip2").value;
+	start_ws1(ping2ip1+'-'+ping2ip2);
+}
       function startping1() {
         var xmlhttp;
         ping2ip1=document.getElementById("ping2ip1").value;
@@ -165,6 +184,27 @@
         xmlhttp.send();
         pingstart = 1;
       };
+function start_ws2(id){
+    ws = new WebSocket("ws://" + host + ":" + wsport + "/ws");
+     
+    ws.onmessage = function(evt) {
+      console.log("message received: " + evt.data);
+    };
+    ws.onclose = function(evt) {
+      console.log("Connection close");
+    };
+    ws.onopen = function(evt) { 
+      ws.send('{"id":"'+id+'"}');
+      console.log("Connection Opened");
+      
+    };
+}
+
+function startwsping2(){
+        ping2ip3=document.getElementById("ping2ip3").value;
+        ping2ip4=document.getElementById("ping2ip4").value;
+	start_ws2(ping2ip3+'-'+ping2ip4);
+}
       function startping2() {
         var xmlhttp;
         ping2ip3=document.getElementById("ping2ip3").value;
@@ -266,7 +306,7 @@
                 var axisData;
                 var fso, ts, s ; 
                 var ForReading = 1;
-                var json = "";                               
+                var rtt = 0;                 
                 
                 clearInterval(timeTicket);
                 timeTicket = setInterval(function (){
@@ -287,30 +327,11 @@
                     {
                         if ((xmlhttp.readyState==4 && xmlhttp.status==200) || (xmlhttp.status==304 && xmlhttp.readyState==1))
                         {
-                           json=xmlhttp.responseText;
+                           rtt=xmlhttp.responseText;
                         }
                     }
-
-                    lastData = 0;
-                    var obj = eval ("(" + json + ")");
-                    //var obj = eval( json );
-                    //document.getElementById("px").innerHTML += obj.icmp_seq;icmp_seq
-                    //document.getElementById("px").innerHTML += obj.rtt;
-                    //document.getElementById("px").innerHTML += obj["icmp_seq"];
-                    var new_icmp_seq = obj.icmp_seq;
-
-                    var new_rtt = obj.rtt;    
-
-                    if (new_icmp_seq == icmp_seq){
-                        lastData = 0;
-                    }
-                    else{
-                        lastData = new_rtt;
-                        icmp_seq = new_icmp_seq;
-                    }
-                    
                     axisData = (new Date()).toLocaleTimeString().replace(/^\D*/,'');
-                    
+                    lastData = parseFloat(rtt);
                     
                     // 动态数据接口 addData
                     myChart.addData([

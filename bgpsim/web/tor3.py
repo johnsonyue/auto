@@ -25,8 +25,26 @@ class Ping2Handler(tornado.web.RequestHandler):
 
         self.write(str(2.2))
 
-
 class PinHandler(tornado.web.RequestHandler):
+
+    def get(self):
+        filename = "ping-" + self.get_argument("file") + ".txt"
+        rtt = 0
+        icmp_seq = 0
+        try:
+            fpin = open("conf/" + filename, "r")
+            ping = fpin.readlines()[-1].strip()
+            icmp_seq = int(ping.split(" ")[4].split("=")[-1])
+            rtt = float(ping.split(" ")[6].split("=")[-1])
+            fpin.close()
+        except Exception as e:
+            icmp_seq = 0
+            rtt = 0
+
+        self.write(json.dumps({"icmp_seq": icmp_seq, "rtt": rtt}, sort_keys=True,
+                              separators=(',', ': ')))
+
+class PinHandler2(tornado.web.RequestHandler):
 
     def get(self):
         filename = "ping-" + self.get_argument("file") + ".txt"
@@ -38,11 +56,13 @@ class PinHandler(tornado.web.RequestHandler):
             rtt = ping.split(" ")[6].split("=")[-1]
             if "icmp_sep" not in canshu:
                 canshu["icmp_sep"] = icmp_sep
+                print "no last, current: "+icmp_sep
             else:
                 last_seq = canshu["icmp_sep"]
                 if icmp_sep == last_seq:
                     rtt = "0"
                 canshu["icmp_sep"] = icmp_sep
+                print "last: "+last_seq+", current: "+icmp_sep
             fpin.close()
         except Exception as e:
             print e
@@ -63,14 +83,14 @@ class PingstartHandler(tornado.web.RequestHandler):
             first_ip = ip_first_ip[ip1].split("/")[0]
             # ssh
 
-            os.popen("./ssh-run.sh " + first_ip + " \"docker exec " + first_ip + " bash -c \'ping -n " + ip2 + "\'\" > conf/" + filename)
+            os.popen("./remote " + first_ip + " \"docker exec " + first_ip + " bash -c \'ping -n " + ip2 + "\'\" > conf/" + filename)
             # print("./ssh-run.sh " + host_ip1 + " \"docker exec " + first_ip + " bash -c \'ping -n " + ip2 + "\'\" > conf/" + filename)
 
             self.write("ip1:" + ip1 + "\nip2:" + ip2)
         elif start == "1":
             first_ip = ip_first_ip[ip1].split("/")[0]
             # ssh
-            os.popen("./ssh-run.sh " + first_ip + " \"docker exec " + first_ip + " bash -c \'killall ping\'\"")
+            os.popen("./remote " + first_ip + " \"docker exec " + first_ip + " bash -c \'killall ping\'\"")
             self.write("ok")
         else:
             print 2

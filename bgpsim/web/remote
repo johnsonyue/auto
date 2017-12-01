@@ -1,0 +1,9 @@
+host_file=conf/node-list.ip_level
+ip=$(grep $1 $host_file | cut -d'#' -f1 | head -n 1)
+pass=hitnis1q2w3e4r
+cmd=$(echo $2 | sed 's/"/\\\"/g')
+
+expect -c "set timeout -1
+spawn ssh root@$ip \"$cmd\"
+expect -re \".*password.*\" {send \"$pass\r\"}
+expect eof"
