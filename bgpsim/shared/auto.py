@@ -33,7 +33,7 @@ for b in bot_ip_list:
   print('docker exec ' + control_ip + '  python /home/quagga/ping_test.py ' + b)
   os.system('docker exec ' + control_ip + '  python /home/quagga/ping_test.py ' + b)
 print 'bgp restart success.'
-os.system("ps -ef | grep bot_sub | awk '{print $2}' | xargs -I {} kill {}; docker ps | awk '{print $NF}' | tail -n +2 | xargs -I {} bash -c \"docker exec {} python /home/quagga/bot_sub.py &\"")
+os.system('docker ps | tail -n +2 | awk \'{print $NF}\' | xargs -I {} bash -c "docker exec {} ps -ef | grep bot_sub | awk \'{print \$2}\' | xargs -I % bash -c \\\"echo {}; docker exec {} kill %; docker exec {} python /home/quagga/bot_sub.py &\\\""')
 print 'reset bots'
 #在控制机执行bot_control.py
 print('docker exec ' + control_ip + ' python /home/quagga/bot_control.py')
