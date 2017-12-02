@@ -8,6 +8,7 @@ import socket
 import time
 import datetime
 import ConfigParser  
+import sys
 
 conf = ConfigParser.ConfigParser()  
 conf.read("/home/quagga/attack_info.cfg")  
