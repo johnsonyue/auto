@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Ping</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="AYH">
+    <link href="static/assets/css/bootstrap.css" rel="stylesheet">
+    <link href="static/assets/css/theme.css" rel="stylesheet">
+    <link href="static/assets/css/font-awesome.min.css" rel="stylesheet">
+    <link href="static/assets/css/alertify.css" rel="stylesheet">   
+    <link href="static/assets/css/colorpicker.css" rel="stylesheet">
+    <link href="static/assets/css/datepicker.css" rel="stylesheet">
+    <link href="static/assets/css/timepicker.css" rel="stylesheet">
+    <link href="static/assets/css/select2.css" rel="stylesheet">
+  </head>
+  <body>
+  <div id="wrap">
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          
+
+          <div class="top-menu visible-desktop">
+            <ul class="pull-right">  
+              <li><a href="login.html"><i class="icon-off"></i> Logout</a></li>
+            </ul>
+          </div>
+
+          <div class="top-menu visible-phone visible-tablet">
+            <ul class="pull-right">  
+              <li><a href="login.html"><i class="icon-off"></i></a></li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
+    <div class="container-fluid">
+     
+      <!-- Main window -->
+      <div class="container" id="forms_page">
+        <div class="row-fluid">
+          <ul class="breadcrumb">            
+            <li class="active"><a href="/" target="_blank">拓扑图</a><span class="divider">|</span></li>
+            <li class="active"><a href="/form" target="_blank">攻击表单</a><span class="divider">|</span></li>
+            <li class="active"><a href="xielou" target="_blank">BGP泄漏</a><span class="divider">|</span></li>
+            <li class="active"><a href="pinggraph" target="_blank">Ping</a><span class="divider">|</span></li> 
+            <li class="active"><a href="traceroute" target="_blank">Traceroute</a><span class="divider">|</span></li> 
+             <li class="active"><a href="traceroute2" target="_blank">Traceroute2</a><span class="divider">|</span></li> 
+            <li class="active"><a href="routetable" target="_blank">Routetable</a><span class="divider">|</span></li>
+            <li class="active"><a href="tcpdump" target="_blank">Tcpdump</a></li>
+          </ul>
+          <h2 class="heading">
+                Ping                
+          </h2>
+        </div>
+        <!-- <p id="px"></p> -->
+        <div class="row-fluid">
+
+
+            <div class="widget widget-padding span12" style="margin-top: 20px;margin-bottom: 20px;">
+              <div class="widget-header">
+                <i class="icon-bar-chart"></i>
+                <h5>Ping</h5>
+                <div class="widget-buttons">
+                    <a href="javascript:void(0)" class="collapse" data-collapsed="false"><i data-title="Collapse" class="icon-chevron-up"></i></a>
+                </div>
+              </div>
+              <div class="widget-body clearfix">
+                <div class="span6">
+                    <div style="padding-left: 50px;padding-right: 50px;padding-bottom: 0;margin-bottom: 0;">
+                        <label id="label1">           
+                        <button class="btn btn-primary pull-right" type="button" onclick="stopping1();">停止</button></label>
+                    </div>  
+                    <div style="height:300px;" id="graph" class="widget-analytics-large">
+                      
+                    </div>
+                </div>
+                <div class="span6">
+                    <div style="padding-left: 50px;padding-right: 50px;padding-bottom: 0;margin-bottom: 0;">
+                        <label id="label2">           
+                        <button class="btn btn-primary pull-right" type="button" onclick="stopping2();">停止</button></label>
+                    </div>
+                    <div style="height:300px;" id="graph2" class="widget-analytics-large">
+                      
+                    </div>
+                </div>
+                <div class="span6">
+                    <div style="padding-left: 10px;padding-right: 50px;padding-bottom: 0;margin-bottom: 0;">
+                        <label id="label3">           
+                        <button class="btn btn-primary pull-right" type="button" onclick="stopping3();">停止</button></label>
+                    </div>
+                    <div style="height:300px;" id="graph3" class="widget-analytics-large">
+                      
+                    </div>
+                </div>
+                <div class="span5">
+                    <label id="label4"> </label> 
+                      <div style="padding-right: 50px;" id="traceresult">
+                          
+                      </div>
+                </div>
+              </div>
+          
+          
+            </div>
+            <div class="widget widget-padding span12" style="margin-top: 20px;margin-bottom: 20px;">
+            <div class="widget-header">
+                <i class="icon-desktop"></i>
+                    <h5>Traceroute</h5>
+                <div class="widget-buttons">
+                    <a href="javascript:void(0)" class="collapse" data-collapsed="false"><i data-title="Collapse" class="icon-chevron-up"></i></a>
+                </div>
+            </div>
+
+            <div class="widget-body clearfix" style="min-height: 500px;">
+                <label id="label4"> </label> 
+              <div class="span12" style="padding-right: 30px;" id="traceresult">
+                  
+              </div>
+              <!-- <form class="form-inline">
+                <input type="text" class="span4" placeholder="Email">
+                <input type="password" class="span4" placeholder="Password">
+                <button type="submit" class="btn btn-success">Sign in</button>
+              </form> -->
+              <!-- <div class="span2"></div> -->              
+              
+              <!-- 从<input type="text" name="ip1">到<input type="text" name="ip2"><input type="button" value="开始"> -->
+            
+            
+            </div>
+          </div>
+        </div>  
+        
+
+    </div><!-- wrap ends-->
+    </div><!--/.fluid-container-->
+    <script type="text/javascript" src="static/assets/js/jquery.min.js"></script>
+    <script type="text/javascript" src="static/assets/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="static/assets/js/raphael-min.js"></script>
+    <script type="text/javascript" src="static/assets/js/bootstrap.js"></script>
+    <script type="text/javascript" src='static/assets/js/sparkline.js'></script>
+    <script type="text/javascript" src='static/assets/js/morris.min.js'></script>
+    <script type="text/javascript" src="static/assets/js/jquery.dataTables.min.js"></script>   
+    <script type="text/javascript" src="static/assets/js/jquery.masonry.min.js"></script>   
+    <script type="text/javascript" src="static/assets/js/jquery.imagesloaded.min.js"></script>   
+    <script type="text/javascript" src="static/assets/js/jquery.facybox.js"></script>   
+    <script type="text/javascript" src="static/assets/js/jquery.alertify.min.js"></script> 
+    <script type="text/javascript" src="static/assets/js/jquery.knob.js"></script>
+    <script type='text/javascript' src='static/assets/js/fullcalendar.min.js'></script>
+    <script type='text/javascript' src='static/assets/js/jquery.gritter.min.js'></script>
+    <script type="text/javascript" src="static/assets/js/realm.js"></script>
+    <script type="text/javascript" src="static/assets/js/jquery.slimscroll.min.js"></script>
+  
+    <script type="text/javascript" src="static/assets/js/select2.min.js"></script>
+    <script type="text/javascript" src="static/assets/js/bootstrap-colorpicker.js"></script>
+    <script type="text/javascript" src="static/assets/js/bootstrap-datepicker.js"></script>
+    <script type="text/javascript" src="static/assets/js/bootstrap-timepicker.js"></script>
+    <script src="static/dist/echarts.js"></script>
+    <script type="text/javascript">
+        var timeTicket;var timeTicket2;var timeTicket3;var timeTicket4;
+        var pingstart=0;var pingstart2=0;var pingstart3=0;var tracestart=0;
+        var ping2ip1,ping2ip2,ping2ip3,ping2ip4,ping2ip5,ping2ip6;
+        var tip1,tip2;
+        var icmp_seq = 0;
+        var icmp_seq2 = 0;
+        var icmp_seq3 =0;
+        var rtt = 0.0; 
+    </script>
+    <script type="text/javascript">
+        var xhttp;        
+        if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+          xhttp=new XMLHttpRequest();
+        }
+        else{// code for IE6, IE5
+          xhttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xhttp.open("GET","p_and_t?start=0",true);
+        xhttp.send();
+        xhttp.onreadystatechange=function()
+        {
+            if ((xhttp.readyState==4 && xhttp.status==200) || (xhttp.status==304 && xhttp.readyState==1))
+            {
+                json=xhttp.responseText;
+                var obj = eval ("(" + json + ")");           
+                ping2ip1 = obj["ping2ip1"];
+                ping2ip2 = obj["ping2ip2"];
+                var origin = document.getElementById("label1").innerHTML;
+                document.getElementById("label1").innerHTML="从 "+ping2ip1+" 到 "+ping2ip2 + origin;
+                ping2ip3 = obj["ping2ip3"];
+                ping2ip4 = obj["ping2ip4"];
+                var origin = document.getElementById("label2").innerHTML;
+                document.getElementById("label2").innerHTML="从 "+ping2ip3+" 到 "+ping2ip4 + origin;
+                ping2ip5 = obj["ping2ip5"];
+                ping2ip6 = obj["ping2ip6"];
+                var origin = document.getElementById("label3").innerHTML;
+                document.getElementById("label3").innerHTML="从 "+ping2ip5+" 到 "+ping2ip6 + origin;
+                tip1 = obj["tip1"];
+                tip2 = obj["tip2"];
+                document.getElementById("label4").innerHTML="从 "+tip1+" 到 "+tip2;
+                setTimeout("startping1();",10);
+                setTimeout("startping2();",1200);
+                setTimeout("startping3();",2400);
+                setTimeout("trace1();",3600);               
+                
+            }
+        };
+        
+    </script>
+    <script type="text/javascript">
+      function trace1() {
+        var xmlhttp;        
+        if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+          xmlhttp=new XMLHttpRequest();
+        }
+        else{// code for IE6, IE5
+          xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xmlhttp.open("GET","trace?start=0&ip1="+tip1+"&ip2="+tip2,true);
+        xmlhttp.send();
+        tracestart = 1;
+      };
+      function startping1() {
+        var xmlhttp;        
+        if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+          xmlhttp=new XMLHttpRequest();
+        }
+        else{// code for IE6, IE5
+          xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xmlhttp.open("GET","pingstart?start=0&ip1="+ping2ip1+"&ip2="+ping2ip2,true);
+        xmlhttp.send();
+        pingstart = 1;
+      };
+      function startping2() {
+        var xmlhttp;        
+        if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+          xmlhttp=new XMLHttpRequest();
+        }
+        else{// code for IE6, IE5
+          xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xmlhttp.open("GET","pingstart?start=0&ip1="+ping2ip3+"&ip2="+ping2ip4,true);
+        xmlhttp.send();
+        pingstart2 = 1;
+      };
+      function startping3() {
+        var xmlhttp;        
+        if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+          xmlhttp=new XMLHttpRequest();
+        }
+        else{// code for IE6, IE5
+          xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xmlhttp.open("GET","pingstart?start=0&ip1="+ping2ip5+"&ip2="+ping2ip6,true);
+        xmlhttp.send();
+        pingstart3 = 1;
+      };
+      function stopping1(argument) {
+        var xmlhttp;
+        if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+          xmlhttp=new XMLHttpRequest();
+        }
+        else{// code for IE6, IE5
+          xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xmlhttp.open("GET","pingstart?start=1&ip1="+ping2ip1+"&ip2="+ping2ip2,true);
+        xmlhttp.send();
+        pingstart=0;
+      };
+      function stopping2(argument) {
+        var xmlhttp;
+        if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+          xmlhttp=new XMLHttpRequest();
+        }
+        else{// code for IE6, IE5
+          xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xmlhttp.open("GET","pingstart?start=1&ip1="+ping2ip3+"&ip2="+ping2ip4,true);
+        xmlhttp.send();
+        pingstart2=0;
+      };
+      function stopping3(argument) {
+        var xmlhttp;
+        if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+          xmlhttp=new XMLHttpRequest();
+        }
+        else{// code for IE6, IE5
+          xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xmlhttp.open("GET","pingstart?start=1&ip1="+ping2ip5+"&ip2="+ping2ip6,true);
+        xmlhttp.send();
+        pingstart3=0;
+      };
+    </script>
+    <script type="text/javascript">
+        require.config({
+            paths: {
+                echarts: 'static/dist'
+            }
+        });
+        require(
+            [
+                'echarts',
+                'echarts/chart/line',   // 按需加载所需图表，如需动态类型切换功能，别忘了同时加载相应图表
+                'echarts/chart/bar'
+            ],
+            function (ec) {
+                var myChart = ec.init(document.getElementById('graph'));
+                var option = {
+                    tooltip : {
+                        trigger: 'axis'
+                    },
+                    dataZoom : {
+                        show : false,
+                        start : 0,
+                        end : 100
+                    },
+                    xAxis : [
+                        {
+                            type : 'category',
+                            boundaryGap : true,
+                            data : (function (){
+                                var now = new Date();
+                                var res = [];                                
+                                var len = 1;
+                                while (len--) {
+                                    res.unshift(now.toLocaleTimeString().replace(/^\D*/,''));
+                                    now = new Date(now);
+                                }
+                                return res;
+                            })()
+                        }
+                    ],
+                    yAxis : [
+                        {
+                            type : 'value',
+                            scale: true,
+                            name : 'RTT',
+                            boundaryGap: [0.2, 0.2]
+                        }//,                        
+                    ],
+                    series : [                    
+                        {
+                            name:'RTT',
+                            type:'bar',
+                            data:(function (){
+                                var res = [0];
+                                return res;
+                            })()
+                        }
+                    ]
+                };
+                var lastData = 11;
+                var axisData;
+                var fso, ts, s ; 
+                var ForReading = 1;
+                var json = "";                               
+                
+                clearInterval(timeTicket);
+                timeTicket = setInterval(function (){
+                  if (pingstart==1){
+                    var xmlhttp;
+                    if (window.XMLHttpRequest)
+                    {// code for IE7+, Firefox, Chrome, Opera, Safari
+                      xmlhttp=new XMLHttpRequest();
+                    }
+                    else
+                    {// code for IE6, IE5
+                      xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+                    }
+                    xmlhttp.open("GET","ping?file="+ping2ip1+"-"+ping2ip2,true);
+                    xmlhttp.send();
+                    
+                    xmlhttp.onreadystatechange=function()
+                    {
+                        if ((xmlhttp.readyState==4 && xmlhttp.status==200) || (xmlhttp.status==304 && xmlhttp.readyState==1))
+                        {
+                           json=xmlhttp.responseText;
+                        }
+                    }
+
+                    lastData = 0;
+                    var obj = eval ("(" + json + ")");
+                    //var obj = eval( json );
+                    //document.getElementById("px").innerHTML += obj.icmp_seq;icmp_seq
+                    //document.getElementById("px").innerHTML += obj.rtt;
+                    //document.getElementById("px").innerHTML += obj["icmp_seq"];
+                    var new_icmp_seq = obj.icmp_seq;
+
+                    var new_rtt = obj.rtt;    
+
+                    if (new_icmp_seq == icmp_seq){
+                        lastData = 0;
+                    }
+                    else{
+                        lastData = new_rtt;
+                        icmp_seq = new_icmp_seq;
+                    }
+                    
+                    axisData = (new Date()).toLocaleTimeString().replace(/^\D*/,'');
+                    
+                    
+                    // 动态数据接口 addData
+                    myChart.addData([
+                        [
+                            0,        // 系列索引
+                            lastData, // 新增数据
+                            false,    // 新增数据是否从队列头部插入
+                            true,    // 是否增加队列长度，false则自定删除原有数据，队头插入删队尾，队尾插入删队头
+                            axisData  // 坐标轴标签
+                        ]
+                    ]);
+                  }
+                }, 1200);
+            myChart.setOption(option);
+            }
+            
+        );
+    </script>
+    <script type="text/javascript">
+       require.config({
+            paths: {
+                echarts: 'static/dist'
+            }
+        });
+        require(
+            [
+                'echarts',
+                'echarts/chart/line',   // 按需加载所需图表，如需动态类型切换功能，别忘了同时加载相应图表
+                'echarts/chart/bar'
+            ],
+            function (ec) {
+                var myChart = ec.init(document.getElementById('graph2'));
+                var option = {
+                    tooltip : {
+                        trigger: 'axis'
+                    },
+                    dataZoom : {
+                        show : false,
+                        start : 0,
+                        end : 100
+                    },
+                    xAxis : [
+                        {
+                            type : 'category',
+                            boundaryGap : true,
+                            data : (function (){
+                                var now = new Date();
+                                var res = [];                                
+                                var len = 1;
+                                while (len--) {
+                                    res.unshift(now.toLocaleTimeString().replace(/^\D*/,''));
+                                    now = new Date(now);
+                                }
+                                return res;
+                            })()
+                        }
+                    ],
+                    yAxis : [
+                        {
+                            type : 'value',
+                            scale: true,
+                            name : 'RTT',
+                            boundaryGap: [0.2, 0.2]
+                        }//,                        
+                    ],
+                    series : [                    
+                        {
+                            name:'RTT',
+                            type:'bar',
+                            data:(function (){
+                                var res = [0];
+                                return res;
+                            })()
+                        }
+                    ]
+                };
+                var lastData = 11;
+                var axisData;
+                var fso, ts, s ; 
+                var ForReading = 1;
+                var rtt = 1;                 
+                var xmlhttp;
+                if (window.XMLHttpRequest)
+                {// code for IE7+, Firefox, Chrome, Opera, Safari
+                  xmlhttp=new XMLHttpRequest();
+                }
+                else
+                {// code for IE6, IE5
+                  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+                }
+                clearInterval(timeTicket2);
+                timeTicket2 = setInterval(function (){
+                  if (pingstart2==1){
+                    xmlhttp.open("GET","ping?file="+ping2ip3+"-"+ping2ip4,true);
+                    xmlhttp.send();
+                    
+                     xmlhttp.onreadystatechange=function()
+                    {
+                        if ((xmlhttp.readyState==4 && xmlhttp.status==200) || (xmlhttp.status==304 && xmlhttp.readyState==1))
+                        {
+                           json=xmlhttp.responseText;
+                        }
+                    }
+
+                    lastData = 0;
+                    var obj = eval ("(" + json + ")");
+                    //var obj = eval( json );
+                    //document.getElementById("px").innerHTML += obj.icmp_seq;icmp_seq
+                    //document.getElementById("px").innerHTML += obj.rtt;
+                    //document.getElementById("px").innerHTML += obj["icmp_seq"];
+                    var new_icmp_seq = obj.icmp_seq;
+
+                    var new_rtt = obj.rtt;    
+
+                    if (new_icmp_seq == icmp_seq2){
+                        lastData = 0;
+                    }
+                    else{
+                        lastData = new_rtt;
+                        icmp_seq2 = new_icmp_seq;
+                    }
+                    
+                    axisData = (new Date()).toLocaleTimeString().replace(/^\D*/,'');
+                    
+                    // 动态数据接口 addData
+                    myChart.addData([
+                        [
+                            0,        // 系列索引
+                            lastData, // 新增数据
+                            false,    // 新增数据是否从队列头部插入
+                            true,    // 是否增加队列长度，false则自定删除原有数据，队头插入删队尾，队尾插入删队头
+                            axisData  // 坐标轴标签
+                        ]
+                    ]);
+                  }
+                }, 1200);
+            myChart.setOption(option);
+            }
+        );
+    </script>
+    <script type="text/javascript">
+       require.config({
+            paths: {
+                echarts: 'static/dist'
+            }
+        });
+        require(
+            [
+                'echarts',
+                'echarts/chart/line',   // 按需加载所需图表，如需动态类型切换功能，别忘了同时加载相应图表
+                'echarts/chart/bar'
+            ],
+            function (ec) {
+                var myChart = ec.init(document.getElementById('graph3'));
+                var option = {
+                    tooltip : {
+                        trigger: 'axis'
+                    },
+                    dataZoom : {
+                        show : false,
+                        start : 0,
+                        end : 100
+                    },
+                    xAxis : [
+                        {
+                            type : 'category',
+                            boundaryGap : true,
+                            data : (function (){
+                                var now = new Date();
+                                var res = [];                                
+                                var len = 1;
+                                while (len--) {
+                                    res.unshift(now.toLocaleTimeString().replace(/^\D*/,''));
+                                    now = new Date(now);
+                                }
+                                return res;
+                            })()
+                        }
+                    ],
+                    yAxis : [
+                        {
+                            type : 'value',
+                            scale: true,
+                            name : 'RTT',
+                            boundaryGap: [0.2, 0.2]
+                        }//,                        
+                    ],
+                    series : [                    
+                        {
+                            name:'RTT',
+                            type:'bar',
+                            data:(function (){
+                                var res = [0];
+                                return res;
+                            })()
+                        }
+                    ]
+                };
+                var lastData = 11;
+                var axisData;
+                var fso, ts, s ; 
+                var ForReading = 1;
+                var rtt = 1;                 
+                var xmlhttp;
+                if (window.XMLHttpRequest)
+                {// code for IE7+, Firefox, Chrome, Opera, Safari
+                  xmlhttp=new XMLHttpRequest();
+                }
+                else
+                {// code for IE6, IE5
+                  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+                }
+                clearInterval(timeTicket3);
+                timeTicket3 = setInterval(function (){
+                  if (pingstart2==1){
+                    xmlhttp.open("GET","ping?file="+ping2ip5+"-"+ping2ip6,true);
+                    xmlhttp.send();
+                    
+                     xmlhttp.onreadystatechange=function()
+                    {
+                        if ((xmlhttp.readyState==4 && xmlhttp.status==200) || (xmlhttp.status==304 && xmlhttp.readyState==1))
+                        {
+                           json=xmlhttp.responseText;
+                        }
+                    }
+
+                    lastData = 0;
+                    var obj = eval ("(" + json + ")");
+                    //var obj = eval( json );
+                    //document.getElementById("px").innerHTML += obj.icmp_seq;icmp_seq
+                    //document.getElementById("px").innerHTML += obj.rtt;
+                    //document.getElementById("px").innerHTML += obj["icmp_seq"];
+                    var new_icmp_seq = obj.icmp_seq;
+
+                    var new_rtt = obj.rtt;    
+
+                    if (new_icmp_seq == icmp_seq3){
+                        lastData = 0;
+                    }
+                    else{
+                        lastData = new_rtt;
+                        icmp_seq3 = new_icmp_seq;
+                    }
+                    
+                    axisData = (new Date()).toLocaleTimeString().replace(/^\D*/,'');
+                    
+                    // 动态数据接口 addData
+                    myChart.addData([
+                        [
+                            0,        // 系列索引
+                            lastData, // 新增数据
+                            false,    // 新增数据是否从队列头部插入
+                            true,    // 是否增加队列长度，false则自定删除原有数据，队头插入删队尾，队尾插入删队头
+                            axisData  // 坐标轴标签
+                        ]
+                    ]);
+                  }
+                }, 1200);
+            myChart.setOption(option);
+            }
+        );
+    </script>
+    <script type="text/javascript">        
+        var txmlhttp2;
+        if (window.XMLHttpRequest)
+        {// code for IE7+, Firefox, Chrome, Opera, Safari
+          txmlhttp2=new XMLHttpRequest();
+        }
+        else
+        {// code for IE6, IE5
+          txmlhttp2=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        clearInterval(timeTicket4);
+        var result="";
+        var stopflag="0";
+        timeTicket4 = setInterval(function (){
+          if (tracestart==1){           
+
+            txmlhttp2.open("GET","trace?start=2&file="+tip1+"-"+tip2,true);
+            txmlhttp2.send();
+            
+            txmlhttp2.onreadystatechange=function()
+            {
+                if ((txmlhttp2.readyState==4 && txmlhttp2.status==200) || (txmlhttp2.status==304 && txmlhttp2.readyState==1))
+                {
+                   result=txmlhttp2.responseText;
+                }
+            }
+            document.getElementById("traceresult").innerHTML="<pre>" + result + "</pre>"; 
+
+          }
+        },2400);
+        var timeTicket5;
+        clearInterval(timeTicket5);
+        var result="";
+        var stopflag="0";
+        timeTicket5 = setInterval(function (){
+          trace1();
+        },24000);
+
+    </script>
+  </body>
+</html>
