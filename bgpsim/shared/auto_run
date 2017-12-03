@@ -22,30 +22,30 @@ bot_ip_list=($(get_sec "bot_ip"))
 bot_ip_route=${bot_ip_list[0]}
 
 # adjust bgp conf and restart bgpd
-echo "docker exec $attack_ip \"python /home/quagga/change_bgpd_conf.py $keep_hold $reconnect_time\""
-docker exec $attack_ip "python /home/quagga/change_bgpd_conf.py $keep_hold $reconnect_time"
-echo "docker exec $route_ip \"python /home/quagga/change_bgpd_conf.py $keep_hold $reconnect_time\""
-docker exec $route_ip "python /home/quagga/change_bgpd_conf.py $keep_hold $reconnect_time"
+echo "docker exec $attack_ip python /home/quagga/change_bgpd_conf.py $keep_hold $reconnect_time"
+docker exec $attack_ip python /home/quagga/change_bgpd_conf.py $keep_hold $reconnect_time
+echo "docker exec $route_ip python /home/quagga/change_bgpd_conf.py $keep_hold $reconnect_time"
+docker exec $route_ip python /home/quagga/change_bgpd_conf.py $keep_hold $reconnect_time
 # remove tc
 docker exec $attack_ip /home/quagga/tc-back.sh $updown
 echo "tc cleared"
 # perform ping test
 for b in ${bot_ip_list[@]}; do
-  echo "docker exec $attack_ip \"python /home/quagga/ping_test.py $b\""
-  docker exec $attack_ip "python /home/quagga/ping_test.py $b"
-  echo "docker exec $control_ip \"python /home/quagga/ping_test.py $b\""
-  docker exec $control_ip "python /home/quagga/ping_test.py $b"
+  echo "docker exec $attack_ip python /home/quagga/ping_test.py $b"
+  docker exec $attack_ip python /home/quagga/ping_test.py $b
+  echo "docker exec $control_ip python /home/quagga/ping_test.py $b"
+  docker exec $control_ip python /home/quagga/ping_test.py $b
 done
 echo 'bgp restart ok'
 
 docker ps | tail -n +2 | awk '{print $NF}' | xargs -I {} bash -c "docker exec {} ps -ef | grep bot_sub | awk '{print \$2}' | xargs -I % bash -c \"echo {}; docker exec {} kill %; docker exec {} python /home/quagga/bot_sub.py &\""
 echo "reset bots"
 # exec bot_control.
-echo "docker exec $control_ip \"python /home/quagga/bot_control.py\""
-docker exec $control_ip "python /home/quagga/bot_control.py"
+echo "docker exec $control_ip python /home/quagga/bot_control.py"
+docker exec $control_ip python /home/quagga/bot_control.py
 # run tcpdump on target.
-echo "docker exec $attack_ip \"python /home/quagga/tcpdump_bgp.py $attack_ip $bot_ip_route $dump_time\" &"
-docker exec $attack_ip "python /home/quagga/tcpdump_bgp.py $attack_ip $bot_ip_route $dump_time" &
+echo "docker exec $attack_ip python /home/quagga/tcpdump_bgp.py $attack_ip $bot_ip_route $dump_time &"
+docker exec $attack_ip python /home/quagga/tcpdump_bgp.py $attack_ip $bot_ip_route $dump_time &
 # add tc
-docker exec $attack_ip "/home/quagga/tc-control.sh" $up_down
+docker exec $attack_ip /home/quagga/tc-control.sh $up_down
 echo 'wondershaper ok'
