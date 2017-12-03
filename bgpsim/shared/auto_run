@@ -7,7 +7,7 @@ python -c "import ConfigParser; c=ConfigParser.ConfigParser(); c.read('/home/yup
 
 get_sec(){
 s=$1
-python -c "import ConfigParser; c=ConfigParser.ConfigParser(); c.read('/home/yupeng/quagga/attack_info.cfg'); print c.items('$c')"
+python -c "import ConfigParser; c=ConfigParser.ConfigParser(); c.read('/home/yupeng/quagga/attack_info.cfg'); print ' '.join(map(lambda x:x[1], c.items('$s')));"
 }
 
 control_ip=$(get_conf "control_ip" "control_ip")
@@ -19,18 +19,17 @@ up_down=$(get_conf "up_down" "up_down")
 dump_time=$(get_conf "dump_time" "dump_time")
 bot_ip_list=($(get_sec "bot_ip"))
 
-bot_ip_route=("bot_ip", "bot_ip_1")
-bot_ip_list = map ( lambda x:x[1], conf.items("bot_ip"))
+bot_ip_route=${bot_ip_list[0]}
 
-#更改bgpd.conf并重启服务
+# adjust bgp conf and restart bgpd
 echo "docker exec $attack_ip \"python /home/quagga/change_bgpd_conf.py $keep_hold $reconnect_time\""
 docker exec $attack_ip "python /home/quagga/change_bgpd_conf.py $keep_hold $reconnect_time"
 echo "docker exec $route_ip \"python /home/quagga/change_bgpd_conf.py $keep_hold $reconnect_time\""
 docker exec $route_ip "python /home/quagga/change_bgpd_conf.py $keep_hold $reconnect_time"
-#限制带宽
+# remove tc
 docker exec $attack_ip /home/quagga/tc-back.sh $updown
 echo "tc cleared"
-#确定重启成功
+# perform ping test
 for b in ${bot_ip_list[@]}; do
   echo "docker exec $attack_ip \"python /home/quagga/ping_test.py $b\""
   docker exec $attack_ip "python /home/quagga/ping_test.py $b"
@@ -39,19 +38,14 @@ for b in ${bot_ip_list[@]}; do
 done
 echo 'bgp restart ok'
 
-docker ps | tail -n +2 | awk '{print $NF}' | xargs -I {} bash -c "docker exec {} ps -ef | grep bot_sub | awk '{print \$2}' | xargs -I % bash -c \\\"echo {}; docker exec {} kill %; docker exec {} python /home/quagga/bot_sub.py &\\\""
+docker ps | tail -n +2 | awk '{print $NF}' | xargs -I {} bash -c "docker exec {} ps -ef | grep bot_sub | awk '{print \$2}' | xargs -I % bash -c \"echo {}; docker exec {} kill %; docker exec {} python /home/quagga/bot_sub.py &\""
 echo "reset bots"
-#在控制机执行bot_control.py
+# exec bot_control.
 echo "docker exec $control_ip \"python /home/quagga/bot_control.py\""
 docker exec $control_ip "python /home/quagga/bot_control.py"
-#在被攻击机器执行tcpdump抓BGP包
+# run tcpdump on target.
 echo "docker exec $attack_ip \"python /home/quagga/tcpdump_bgp.py $attack_ip $bot_ip_route $dump_time\" &"
 docker exec $attack_ip "python /home/quagga/tcpdump_bgp.py $attack_ip $bot_ip_route $dump_time" &
-#限制带宽
-docker exec $attack_ip "/home/quagga/tc-control.sh" $up_down &
-os.system('docker exec ' + attack_ip + ' /home/quagga/tc-control.sh ' + up_down + ' &')
+# add tc
+docker exec $attack_ip "/home/quagga/tc-control.sh" $up_down
 echo 'wondershaper ok'
-
-
-
-
