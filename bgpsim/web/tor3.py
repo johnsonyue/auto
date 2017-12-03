@@ -242,9 +242,10 @@ class ShoHandler(tornado.web.RequestHandler):
         info.close()
 
         print ("./ssh-run.sh "+control_ip+" \"sh -c 'cat >"+shared_dir+"attack_info.cfg << EOT\\n$(cat "+shared_dir+"attack_info.cfg)'\"")
-        os.popen("./ssh-run.sh "+control_ip+" \"sh -c 'cat >"+shared_dir+"attack_info.cfg << EOT\\n$(cat "+shared_dir+"attack_info.cfg)'\"")
-        print ("./ssh-run.sh "+control_ip+" \"python " + shared_dir + "auto_run 2>&1 | tee "+remotepath+"conf/attack_result.txt \"")
-        os.popen("./ssh-run.sh "+control_ip+" \"python " + shared_dir + "auto_run 2>&1 | tee "+remotepath+"conf/attack_result.txt \"")
+        os.system("./ssh-run.sh "+control_ip+" \"sh -c 'cat >"+shared_dir+"attack_info.cfg << EOT\\n$(cat "+shared_dir+"attack_info.cfg)'\"")
+        print ("./remote "+control_ip+" \"" + shared_dir + "auto_run 2>&1 \" | tee "+remotepath+"conf/attack_result.txt")
+        os.system("./remote "+control_ip+" \"" + shared_dir + "auto_run 2>&1 \" | tee "+remotepath+"conf/attack_result.txt")
+        self.render("show.html", params=params)
         # os.popen("./ssh-run.sh " + control_ip + " \"docker exec " + control_ip +
         #          " bash -c \'python " + dockerpath + "bot_control.py &\'\"")
         # print("./ssh-run.sh " + control_ip + " \"docker exec " + control_ip +
@@ -253,7 +254,6 @@ class ShoHandler(tornado.web.RequestHandler):
         #          " bash -c \'" + dockerpath + "tc-control.sh " + bandwidth + "\'\"")
         # print("./ssh-run.sh " + IP1 + " \"docker exec " + IP1 +
         #       " bash -c \'/home/quagga/tc-control.sh " + bandwidth + "\'\"")
-        self.render("show.html", params=params)
 
 
 class MainHandler(tornado.web.RequestHandler):
