@@ -66,14 +66,14 @@ class PingstartHandler(tornado.web.RequestHandler):
             first_ip = ip_first_ip[ip1].split("/")[0]
             # ssh
 
-            os.popen("./ssh-run.sh " + first_ip + " \"docker exec " + first_ip + " bash -c \'ping -n " + ip2 + "\'\" > conf/" + filename)
+            os.popen("./remote " + first_ip + " \"docker exec " + first_ip + " bash -c \'ping -n " + ip2 + "\'\" > conf/" + filename+";echo all clear")
             # print("./ssh-run.sh " + host_ip1 + " \"docker exec " + first_ip + " bash -c \'ping -n " + ip2 + "\'\" > conf/" + filename)
 
             self.write("ip1:" + ip1 + "\nip2:" + ip2)
         elif start == "1":
             first_ip = ip_first_ip[ip1].split("/")[0]
             # ssh
-            os.popen("./ssh-run.sh " + first_ip + " \"docker exec " + first_ip + " bash -c \'killall ping\'\"")
+            os.popen("./remote " + first_ip + " \"docker exec " + first_ip + " bash -c \'killall ping\'\""+";echo all clear")
             self.write("ok")
         else:
             print 2
@@ -227,6 +227,7 @@ class ShoHandler(tornado.web.RequestHandler):
         #os.popen("python " + shared_dir + "auto.py > conf/attack_result.txt")
         print ("./ssh-run.sh "+control_ip+" \"sh -c 'cat >"+shared_dir+"attack_info.cfg << EOT\\n$(cat "+shared_dir+"attack_info.cfg)'\"")
         os.system("./ssh-run.sh "+control_ip+" \"sh -c 'cat >"+shared_dir+"attack_info.cfg << EOT\\n$(cat "+shared_dir+"attack_info.cfg)'\"")
+        self.render("show.html", params=params)
         print ("./remote "+control_ip+" \"" + shared_dir + "auto_run 2>&1 \" | tee "+remotepath+"conf/attack_result.txt")
         os.system("./remote "+control_ip+" \"" + shared_dir + "auto_run 2>&1 \" | tee "+remotepath+"conf/attack_result.txt")
         # os.popen("./ssh-run.sh " + control_ip + " \"docker exec " + control_ip +
@@ -237,7 +238,7 @@ class ShoHandler(tornado.web.RequestHandler):
         #          " bash -c \'" + dockerpath + "tc-control.sh " + bandwidth + "\'\"")
         # print("./ssh-run.sh " + IP1 + " \"docker exec " + IP1 +
         #       " bash -c \'/home/quagga/tc-control.sh " + bandwidth + "\'\"")
-        self.render("show.html", params=params)
+        #self.render("show.html", params=params)
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -386,7 +387,7 @@ class TraceHandler(tornado.web.RequestHandler):
             if ip1 in ip_host:
                 first_ip = ip_first_ip[ip1].split("/")[0]
                 # ssh
-                os.popen("./ssh-run.sh " + first_ip + " \"docker exec " + first_ip + " bash -c \'traceroute " + ip2 + "\'\" > conf/" + filename)
+                os.popen("./remote " + first_ip + " \"docker exec " + first_ip + " bash -c \'traceroute " + ip2 + "\'\" > conf/" + filename+";echo all clear")
             else:
                 msg["wrong"] = "输入的ip不存在于网络中"
 
