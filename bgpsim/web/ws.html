@@ -1,23 +1,128 @@
-<html>
-<body>HELLO</body>
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+.line {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+</style>
+<svg id="ping1" width="1700" height="200"></svg>
+<svg id="ping2" width="1700" height="200"></svg>
+<svg id="ping3" width="1700" height="200"></svg>
+<script src="d3.v4.min.js"></script>
 <script>
+var w = 1700,
+    h = 200;
+var margin = {top: 20, right: 20, bottom: 20, left: 40},
+    width = w - margin.left - margin.right,
+    height = h - margin.top - margin.bottom;
+var n = 42;
+var line = d3.line()
+    .curve(d3.curveBasis)
+    .x(function(d, i) { return x(i); })
+    .y(function(d, i) { return y(d); });
+var x = d3.scaleLinear()
+    .domain([0, n - 2])
+    .range([0, width]);
+var y = d3.scaleLinear()
+    .domain([0, 0.5])
+    .range([height, 0]);
+
+function ping(id, arg){
+this.id = id;
+this.arg = arg;
+this.data = [];
+this.seq = 1;
+this.svg = d3.select(id);
+
+var g = this.svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+this.t = d3.scaleLinear()
+    .domain([0, n - 2])
+    .range([0, width]);
+this.axis = g.append("g")
+    .attr("class", "axis axis--x")
+    .attr("transform", "translate(0," + y(0) + ")")
+    .call(d3.axisBottom(this.t));
+g.append("g")
+    .attr("class", "axis axis--y")
+    .call(d3.axisLeft(y));
+g.append("defs").append("clipPath")
+    .attr("id", "clip")
+  .append("rect")
+    .attr("width", width)
+    .attr("height", height);
+this.path = g.append("g")
+    .attr("clip-path", "url(#clip)")
+    .append("path")
+    .datum(this.data)
+      .attr("class", "line")
+      .attr("d", line);
+}
+
+function tick(o,r) {
+  // Push a new data point onto the back.
+  o.data.push(r);
+  // Redraw the line.
+  if (o.data.length >= n){
+    o.path.datum(o.data)
+      .attr("transform", null)
+      .attr("d", line);
+    o.path.transition()
+      .attr("transform", "translate(" + x(-1) + ",0)");
+
+    o.t.domain([o.seq - n + 1, o.seq]);
+    o.axis.transition().call(d3.axisBottom(o.t));
+    o.data.shift();
+  }else{
+    o.path.datum(o.data)
+      .transition()
+      .attr("d", line);
+  }
+}
+
+//ws
 var host="10.11.118.68";
 var wsport="8881";
 function start_ws(){
-    ws = new WebSocket("ws://" + host + ":" + wsport + "/ws");
-     
-    ws.onmessage = function(evt) {
-      console.log("message received: " + evt.data);
-    };
-    ws.onclose = function(evt) {
-      console.log("Connection close");
-    };
-    ws.onopen = function(evt) { 
-      ws.send('{"id":"2.1.0.2-2.50.0.2"}');
-      console.log("Connection Opened");
-      
-    };
+  ws = new WebSocket("ws://" + host + ":" + wsport + "/ws");
+   
+  ws.onmessage = function(evt) {
+    console.log("message received: " + evt.data);
+    var cid=evt.data.split('#')[0];
+    var l=evt.data.split('#')[1];
+    var f=l.split(' ');
+    var r = 0;
+    if (l == "HALT"){
+      r = 0;
+    } else if (f[f.length-1] == "ms"){
+      r = parseFloat(f[f.length-2].split('=')[1]);
+    } else{
+      return;
+    }
+    dict[cid].seq += 1;
+    tick(dict[cid], r);
+  };
+  ws.onclose = function(evt) {
+    console.log("Connection close");
+  };
+  ws.onopen = function(evt) { 
+    ws.send('{"id":"2.2.0.2-2.21.0.2"}');
+    ws.send('{"id":"2.2.0.2-2.18.0.2"}');
+    ws.send('{"id":"2.42.0.2-2.43.0.2"}');
+    console.log("Connection Opened");
+    
+  };
 }
 start_ws();
+
+var dict = {}
+var ping1=new ping("#ping1","2.2.0.2-2.21.0.2");
+dict["2.2.0.2-2.21.0.2"] = ping1;
+var ping2=new ping("#ping2","2.2.0.2-2.18.0.2");
+dict["2.2.0.2-2.18.0.2"] = ping2;
+var ping3=new ping("#ping3","2.42.0.2-2.43.0.2");
+dict["2.42.0.2-2.43.0.2"] = ping3;
 </script>
-</html>
+<script>
+</script>

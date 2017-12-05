@@ -23,6 +23,7 @@ def ping(cid,ll):
 	while True:
 		l=p.readline().strip()
 		if not l:
+			p.close()
 			break
 		ll.append(l)
 
@@ -49,10 +50,10 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 
 	def scheduled(self, cid, pl):
 		ll=self.application.ps[cid]
-		if pl == len(ll):
-			self.write_message("HALT")
+		if pl == len(ll)-1:
+			self.write_message(str(cid)+"#HALT")
 		for l in ll[pl+1:]:
-			self.write_message(l)
+			self.write_message(str(cid)+"#"+l)
 
 		tornado.ioloop.IOLoop.instance().add_timeout(datetime.timedelta(seconds=1), partial(self.scheduled, cid, len(ll)-1)) 
 
