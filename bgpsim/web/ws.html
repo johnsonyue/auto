@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
+<link href="static/assets/css/bootstrap.css" rel="stylesheet">
 <style>
 .line {
   fill: none;
@@ -7,12 +8,16 @@
   stroke-width: 1.5px;
 }
 </style>
-<svg id="ping1" width="1700" height="200"></svg>
-<svg id="ping2" width="1700" height="200"></svg>
-<svg id="ping3" width="1700" height="200"></svg>
+<div><span>Judge-->Target:&nbsp2.2.0.2-2.21.0.2</span></div>
+<svg id="ping1" width="1750" height="200"></svg>
+<div><span>Judge-->Reference:&nbsp2.2.0.2-2.18.0.2</span></div>
+<svg id="ping2" width="1750" height="200"></svg>
+<div><span>Inner1-->Innter2:&nbsp2.42.0.2-2.43.0.2</span><div/>
+<svg id="ping3" width="1750" height="200"></svg>
 <script src="d3.v4.min.js"></script>
+<script type="text/javascript" src="static/assets/js/bootstrap.js"></script>
 <script>
-var w = 1700,
+var w = 1750,
     h = 200;
 var margin = {top: 20, right: 20, bottom: 20, left: 40},
     width = w - margin.left - margin.right,
@@ -123,6 +128,4 @@ var ping2=new ping("#ping2","2.2.0.2-2.18.0.2");
 dict["2.2.0.2-2.18.0.2"] = ping2;
 var ping3=new ping("#ping3","2.42.0.2-2.43.0.2");
 dict["2.42.0.2-2.43.0.2"] = ping3;
-</script>
-<script>
 </script>

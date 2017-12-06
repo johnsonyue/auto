@@ -1,0 +1,60 @@
+#!/bin/bash
+
+cp=2.0.0.2 #proxy container
+ca=2.1.0.2 #access container
+ct=2.43.0.2 #target container
+nt=2.43.0.0 #target network
+kbr=hitbr071 #kvm bridge
+ic=192.168.7.250 #target container ip
+ik=192.168.7.10 #kvm ip
+nb=192.168.7.0/24 #bridge network
+
+ip2int()
+{
+local a b c d
+{ IFS=. read a b c d; } <<< $1
+echo $(((((((a << 8) | b) << 8) | c) << 8) | d))
+}
+int2ip()
+{
+local ui32=$1; shift
+local ip n
+for n in 1 2 3 4; do
+    ip=$((ui32 & 0xff))${ip:+.}$ip
+    ui32=$((ui32 >> 8))
+done
+echo $ip
+}
+next(){
+i=$(echo $1 | cut -d'/' -f 1)
+m=$(echo $1 | cut -d'/' -f 2)
+h=$(($(ip2int $i) << $m))
+echo $(int2ip $(($(ip2int $i) + 1)))
+}
+
+setup_proxy(){
+cp=$1
+net=$(docker inspect --format='{{.NetworkSettings.Networks}}' $ca | grep -o net_[0-9]*)
+nip=$(next $(docker network inspect --format {{.Containers}} net_50 | grep -o '[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*/[0-9]*' | sort -nr | head -n 1))
+echo "docker run -tid --name $cp --network=$net --ip=$nip -v /home/yupeng/quagga/:/home/quagga proxy /bin/bash"
+#docker run -tid --name $cp --network=$net --ip=$nip -v /home/yupeng/quagga/:/home/quagga proxy /bin/bash
+}
+
+# setup if not exists proxy container.
+test -z "$(docker ps -a | awk '{print $NF}' | grep $cp)" && setup_proxy $cp
+
+# connect container and kvm.
+n=$(($(docker exec $cp ifconfig | grep -e '^eth.*' | awk '{print $1}' | grep -o -e '[0-9*]' | sort -nr | head -n 1)+1))
+echo "pipework $br -i eth$n $cp $ic"
+#pipework $br -i eth$n $cp $ic
+
+# get container br name.
+cbr=$(brctl show | awk '{if (substr($0, 0, 1) == "\t"){printf " "$NF} else {printf "\n%s",$0}}' | grep $(ip link | grep ^$(nsenter --net=$(docker inspect --format='{{.NetworkSettings.SandboxKey}}' $cp) ethtool -S eth0 | tail -n 1 | awk '{print $NF}'): | cut -d' ' -f 2 | cut -d'@' -f 1) | awk '{print $1}';)
+echo "cbr: $cbr"
+
+# clear default routes.
+#docker ps | tail -n +2 | awk '{print $NF}' | xargs -I {} bash -c "d=\$(docker exec \$1 ip route | grep default); echo \$1 \$d" -- {} | grep default | cut -d' ' -f1 | xargs -I {} bash -c "echo \"docker exec {} ip route del default\"; docker exec {} ip route del default"
+echo "default cleared"
+
+# add route to kvm.
+#docker ps -a | tail -n +2 | awk '{print $NF}' | while read l; do echo $l; docker exec $l bash -c "echo \"ip route add $nb \$(ip route | grep \"^$nt/\" | cut -d' ' -f2,3,4,5)\"; eval \"ip route add 192.168.7.0/24 \$(ip route | grep \"^$nt/\" | cut -d' ' -f2,3,4,5)\";" done
