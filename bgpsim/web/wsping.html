@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link href="static/assets/css/bootstrap.css" rel="stylesheet">
+<style>
+.line {
+  fill: none;
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+.bar {
+  fill: steelblue;
+}
+.bar:hover {
+  fill: brown;
+}
+</style>
+<svg width="960" height="500"></svg>
+<script src="d3.v4.min.js"></script>
+<script type="text/javascript" src="static/assets/js/jquery.min.js"></script>
+<script type="text/javascript" src="static/assets/js/bootstrap.js"></script>
+<script>
+var svg = d3.select("svg"),
+    margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom;
+
+var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
+    y = d3.scaleLinear().rangeRound([height, 0]);
+
+var data = [];
+var g = svg.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+var xaxis = g.append("g")
+  .attr("class", "axis axis--x")
+  .attr("transform", "translate(0," + height + ")")
+  .call(d3.axisBottom(x));
+var yaxis = g.append("g")
+  .attr("class", "axis axis--y")
+  .call(d3.axisLeft(y))
+.append("text")
+  .attr("transform", "rotate(-90)")
+  .attr("y", 6)
+  .attr("dy", "0.71em")
+  .attr("text-anchor", "end")
+  .text("Frequency");
+
+function redraw(){
+x.domain(data.map(function(d) {return d.id;}));
+xaxis.call(d3.axisBottom(x));
+
+y.domain([0, d3.max(data, function(d){return d.rtt;})*1.2]);
+yaxis.call(d3.axisLeft(y));
+
+console.log(data);
+g.selectAll(".bar")
+  .data(data, function(d){return d.id;})
+  .enter().append("rect")
+    .attr("class", "bar")
+    .attr("x", function(d) { return x(d.id); })
+    .attr("y", function(d) { return y(d.rtt); })
+    .attr("width", x.bandwidth())
+    .attr("height", function(d) { return height - y(d.rtt); });
+
+g.selectAll(".bar")
+      .attr("y", function(d) { return y(d.rtt); })
+      .attr("height", function(d) { return height - y(d.rtt); });
+}
+
+//ws
+var host="47.90.99.168";
+var wsport="8886";
+function start_ws(){
+  ws = new WebSocket("ws://" + host + ":" + wsport + "/ws");
+   
+  ws.onmessage = function(evt) {
+    //console.log("message received: " + evt.data);
+    obj=JSON.parse(evt.data);
+    data=[];
+    var dict={};
+    for (var k in obj){
+      var d = obj[k];
+      var f=d.split(' ');
+      if (f[f.length-1] == "ms"){
+        var cid=d.split('#')[0];
+        var rtt=parseFloat(f[f.length-2].split('=')[1]);
+        dict[cid]=rtt;
+      }
+    }
+    for (var k in dict){
+      data.push({"id":k, "rtt":dict[k]});
+    }
+    redraw();
+  };
+  ws.onclose = function(evt) {
+    console.log("Connection close");
+  };
+  ws.onopen = function(evt) { 
+    console.log("Connection Opened");
+    ws.send('{"action":"start","target":"114.114.114.114"}');
+  };
+}
+start_ws();
+
+</script>

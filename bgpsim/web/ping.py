@@ -71,13 +71,14 @@ class PingWSClient(WebSocketClient):
 		self.ping_app = ping_app
 
 	def _on_message(self, msg):
-		self.ping_app.handler.write_message(msg)
+		obj = json.loads(msg)
+		self.ping_app.handler.write_message(json.dumps(obj["data"]))
 
 	def _on_connection_success(self):
 		pass
 
 	def _on_connection_error(self, exception):
-		sys.stderr.write(str(execption)+"\n")
+		sys.stderr.write(str(exception)+"\n")
 		exit()
 
 class WSApplication(tornado.web.Application):
@@ -111,7 +112,11 @@ class WSHandler(tornado.websocket.WebSocketHandler):
 			for c in self.application.cl:
 				c.send(json.dumps(data))
 	
-	def on_close(self): return
+	def on_close(self):
+		data={}
+		data["action"]="stop"
+		for c in self.application.cl:
+			c.send(json.dumps(data))
  
 	def check_origin(self, origin):
 		return True
