@@ -62,8 +62,9 @@ g.selectAll(".bar")
     .attr("height", function(d) { return height - y(d.rtt); });
 
 g.selectAll(".bar")
-      .attr("y", function(d) { return y(d.rtt); })
-      .attr("height", function(d) { return height - y(d.rtt); });
+    .attr("x", function(d) { return x(d.id); })
+    .attr("y", function(d) { return y(d.rtt); })
+    .attr("height", function(d) { return height - y(d.rtt); });
 }
 
 //ws
